@@ -1,0 +1,262 @@
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 28px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  color: #2372e5;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+h1 {
+  font-size: 30px;
+  letter-spacing: -0.04em;
+  margin: 0;
+  color: #172b4d;
+}
+.heading p:not(.eyebrow) {
+  color: #718096;
+  margin: 7px 0 0;
+  font-size: 14px;
+}
+.heading button {
+  background: #1768dc;
+  color: #fff;
+}
+.welcome {
+  min-height: 246px;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #0d3270, #166fe3);
+  padding: 31px 38px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.welcome h2 {
+  font-size: 27px;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  margin: 13px 0;
+}
+.welcome p {
+  max-width: 480px;
+  color: #cce0ff;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.badge {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: #a8ceff;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.badge mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+.welcome button {
+  color: white;
+  padding: 0;
+  margin-top: 8px;
+}
+.orb {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  border: 20px solid #4f95ee;
+  border-radius: 50%;
+  font-size: 42px;
+  color: #b8dcff;
+  box-shadow:
+    0 0 0 24px #2b75ce,
+    0 0 0 49px #1d5aaa;
+}
+h3 {
+  font-size: 18px;
+  color: #172b4d;
+  margin: 29px 0 15px;
+}
+.actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 28px;
+}
+.actions a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 17px;
+  background: #fff;
+  border: 1px solid #e7ecf3;
+  border-radius: 11px;
+  text-decoration: none;
+  color: #172b4d;
+  box-shadow: 0 2px 4px #1e33500a;
+}
+.actions b,
+.actions span {
+  display: block;
+}
+.actions b {
+  font-size: 13px;
+}
+.actions span {
+  font-size: 11px;
+  color: #7b8798;
+  margin-top: 3px;
+}
+.icon,
+.mini-icon {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 9px;
+}
+.icon mat-icon,
+.mini-icon mat-icon {
+  font-size: 19px;
+}
+.blue {
+  background: #e7f0ff;
+  color: #1670e7;
+}
+.purple {
+  background: #f0eaff;
+  color: #7652cc;
+}
+.orange {
+  background: #fff0df;
+  color: #de8224;
+}
+.green {
+  background: #e5f7ef;
+  color: #26a46e;
+}
+.arrow {
+  margin-left: auto;
+  font-size: 17px;
+  color: #aab4c1;
+}
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 18px;
+}
+.panel {
+  border: 1px solid #e7ecf3;
+  border-radius: 12px;
+  background: white;
+  padding: 19px 21px;
+}
+.panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-title h3,
+.progress h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.panel-title p,
+.progress > p:last-child {
+  font-size: 12px;
+  color: #7b8798;
+  margin: 4px 0;
+}
+.panel-title a {
+  font-size: 12px;
+  color: #1768dc;
+  text-decoration: none;
+  font-weight: 600;
+}
+.activity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #eff2f5;
+  margin-top: 12px;
+}
+.activity b {
+  font-size: 13px;
+}
+.activity p {
+  font-size: 11px;
+  color: #7b8798;
+  margin: 3px 0;
+}
+.activity span {
+  margin-left: auto;
+  font-size: 11px;
+  color: #99a4b2;
+}
+.mini-icon {
+  background: #eef5ff;
+  color: #2978de;
+  width: 32px;
+  height: 32px;
+}
+.mini-icon mat-icon {
+  font-size: 17px;
+}
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 22px 0 8px;
+}
+.score strong {
+  font-size: 29px;
+  color: #1768dc;
+}
+.score span {
+  font-size: 11px;
+  color: #7b8798;
+}
+.bar {
+  height: 7px;
+  background: #eaf0f7;
+  border-radius: 9px;
+}
+.bar i {
+  display: block;
+  width: 72%;
+  height: 100%;
+  border-radius: 9px;
+  background: #2d7ce5;
+}
+@media (max-width: 1100px) {
+  .actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .heading {
+    align-items: start;
+    gap: 16px;
+    flex-direction: column;
+  }
+  .welcome {
+    padding: 26px;
+  }
+  .orb {
+    display: none;
+  }
+  .actions,
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,74 @@
+<div class="resume-intelligence"><app-resume-header [resume]="data.resume" [score]="score()" (close)="close()" />
+  <div class="dashboard"><app-resume-sidebar [parsed]="data.parsed" [activeSection]="activeSection()"
+      (navigate)="scrollTo($event)" />
+    <main #contentArea><app-ai-insights-panel [parsed]="data.parsed" />
+      <app-resume-section sectionId="personal" title="Personal information" icon="person"
+        subtitle="Candidate contact details">
+        <div class="info-grid"><app-info-card label="Name" icon="badge"
+            [value]="value(personal(), 'name', 'fullName') || (value(personal(), 'firstName', 'first_name') || '') + ' ' + (value(personal(), 'lastName', 'last_name') || '')" /><app-info-card
+            label="Email" icon="mail" [value]="value(personal(), 'email')" /><app-info-card label="Phone" icon="call"
+            [value]="value(personal(), 'phone', 'mobile')" /><app-info-card label="Location" icon="location_on"
+            [value]="value(personal(), 'location', 'city')" /><app-info-card label="LinkedIn" icon="link"
+            [value]="value(personal(), 'linkedIn', 'linkedin')"
+            [href]="value(personal(), 'linkedIn', 'linkedin')" /><app-info-card label="GitHub" icon="code"
+            [value]="value(personal(), 'github', 'gitHub')" [href]="value(personal(), 'github', 'gitHub')" /></div>
+      </app-resume-section>
+      <app-resume-section sectionId="summary" title="Professional summary" icon="notes"><app-summary-card
+          [summary]="data.parsed.summary" /></app-resume-section>
+      <app-resume-section sectionId="experience" title="Experience" icon="business_center"
+        subtitle="Career progression and key contributions"><app-experience-timeline
+          [entries]="data.parsed.experience" />
+        <p class="empty-state" *ngIf="!data.parsed.experience.length">No experience details were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="education" title="Education" icon="school">
+        <div class="record-grid">
+          <article *ngFor="let item of data.parsed.education"><span *ngFor="let value of entries(item)"><b>{{ value[0]
+                }}</b>{{ display(value[1]) }}</span></article>
+        </div>
+        <p class="empty-state" *ngIf="!data.parsed.education.length">No education details were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="projects" title="Projects" icon="rocket_launch"><mat-accordion><mat-expansion-panel
+            *ngFor="let project of data.parsed.projects"><mat-expansion-panel-header><mat-panel-title>{{ value(project,
+                'name', 'projectName', 'title') || 'Project' }}</mat-panel-title><mat-panel-description>{{
+                value(project, 'technologies', 'techStack') || 'View details'
+                }}</mat-panel-description></mat-expansion-panel-header>
+            <div class="project-body" *ngFor="let field of entries(project)"><b>{{ field[0] }}</b><span>{{
+                display(field[1]) }}</span></div>
+          </mat-expansion-panel></mat-accordion>
+        <p class="empty-state" *ngIf="!data.parsed.projects.length">No project details were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="technical-skills" title="Technical skills" icon="code"><app-skill-chip-list
+          [skills]="data.parsed.technicalSkills.length ? data.parsed.technicalSkills : data.parsed.skills" />
+        <p class="empty-state" *ngIf="!data.parsed.technicalSkills.length && !data.parsed.skills.length">No technical
+          skills were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="soft-skills" title="Soft skills" icon="handshake"><app-skill-chip-list
+          [skills]="data.parsed.softSkills" tone="green" />
+        <p class="empty-state" *ngIf="!data.parsed.softSkills.length">No soft skills were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="certifications" title="Certifications" icon="workspace_premium">
+        <div class="record-grid simple">
+          <article *ngFor="let item of data.parsed.certifications"><mat-icon>verified</mat-icon><span>{{ item }}</span>
+          </article>
+        </div>
+        <p class="empty-state" *ngIf="!data.parsed.certifications.length">No certifications were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="languages" title="Languages" icon="language"><app-skill-chip-list
+          [skills]="data.parsed.languages" tone="purple" />
+        <p class="empty-state" *ngIf="!data.parsed.languages.length">No languages were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="achievements" title="Achievements" icon="emoji_events">
+        <div class="record-grid simple achievements">
+          <article *ngFor="let item of data.parsed.achievements"><mat-icon>emoji_events</mat-icon><span>{{ item
+              }}</span></article>
+        </div>
+        <p class="empty-state" *ngIf="!data.parsed.achievements.length">No achievements were detected.</p>
+      </app-resume-section>
+      <app-resume-section sectionId="keywords" title="ATS keywords" icon="key"
+        subtitle="Terms surfaced from the parsed resume"><app-skill-chip-list [skills]="data.parsed.keywords"
+          tone="gold" />
+        <p class="empty-state" *ngIf="!data.parsed.keywords.length">No ATS keywords were detected.</p>
+      </app-resume-section>
+    </main>
+  </div>
+</div>

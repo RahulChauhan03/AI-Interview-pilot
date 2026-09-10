@@ -1,0 +1,31 @@
+<mat-sidenav-container class="shell"
+  ><mat-sidenav #drawer [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile()" class="sidebar">
+    <a class="brand" routerLink="/dashboard"
+      ><span class="brand-mark">IP</span><span>Interview Pilot <b>AI</b></span></a
+    >
+    <div class="workspace">WORKSPACE</div>
+    <nav>
+      <a
+        *ngFor="let item of nav"
+        [routerLink]="item.link"
+        routerLinkActive="active"
+        (click)="mobile() && drawer.close()"
+        ><mat-icon>{{ item.icon }}</mat-icon
+        >{{ item.label }}</a
+      >
+    </nav>
+    <button class="logout" mat-button (click)="logout()">
+      <mat-icon>logout</mat-icon>Log out
+    </button> </mat-sidenav
+  ><mat-sidenav-content
+    ><mat-toolbar
+      ><button mat-icon-button class="menu" (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon></button
+      ><span class="crumb">Interview preparation workspace</span><span class="spacer"></span
+      ><button mat-icon-button aria-label="Notifications">
+        <mat-icon>notifications_none</mat-icon>
+      </button>
+      <div class="avatar">AS</div></mat-toolbar
+    >
+    <main class="page"><router-outlet /></main></mat-sidenav-content
+></mat-sidenav-container>

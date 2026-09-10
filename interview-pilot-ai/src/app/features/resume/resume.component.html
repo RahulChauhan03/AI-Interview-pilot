@@ -1,0 +1,46 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">RESUME LIBRARY</p>
+    <h1>My resumes</h1>
+    <p>Keep the versions you use for each opportunity in one place.</p>
+  </div>
+</div>
+<section class="upload" [class.dragging]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)">
+  <div class="upload-icon"><mat-icon>upload_file</mat-icon></div>
+  <h2>{{ uploading ? uploadMessage : 'Upload a resume' }}</h2>
+  <p *ngIf="!selectedFile">Drag and drop your PDF, DOC, or DOCX here, or choose a file from your computer.</p>
+  <p class="selected-file" *ngIf="selectedFile"><mat-icon>description</mat-icon>{{ selectedFile.name }} · {{
+    mapper.formatFileSize(selectedFile.size) }}</p>
+  <input #fileInput type="file" hidden accept=".pdf,.doc,.docx" (change)="onFileSelected($event)" />
+  <div class="upload-actions"><button mat-stroked-button (click)="fileInput.click()"
+      [disabled]="uploading"><mat-icon>attach_file</mat-icon>Browse files</button>
+    <button mat-flat-button color="primary upload-text" *ngIf="selectedFile" (click)="upload()"
+      [disabled]="uploading">{{ uploading ? 'Uploading…' :
+      'Upload resume' }}</button>
+  </div>
+  <mat-progress-bar *ngIf="uploading" mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+  <small>PDF, DOC, or DOCX • Maximum file size 10 MB</small>
+</section>
+<section class="list-header">
+  <div>
+    <h2>Uploaded resumes</h2>
+    <p>{{ (resumes$ | async)?.length ?? 0 }} files in your library</p>
+  </div>
+</section>
+<section class="table">
+  <div class="row table-head"><span>RESUME</span><span>UPLOADED</span><span>STATUS</span><span></span></div>
+  <ng-container *ngIf="resumes$ | async as resumes">
+    <div class="empty" *ngIf="!resumes.length">No resumes uploaded yet.</div>
+    <div class="row" *ngFor="let resume of resumes">
+      <div class="resume-name">
+        <div><mat-icon>description</mat-icon></div><span><b>{{ resume.originalFileName }}</b><small>{{ resume.summary ||
+            'AI summary will appear after processing.' }}</small></span>
+      </div><span>{{ resume.uploadTime | date:'mediumDate' }}</span><span class="status"
+        [class]="'status ' + resume.status.toLowerCase()">{{ mapper.statusLabel(resume.status) }}</span><span
+        class="row-actions"><button mat-icon-button aria-label="View resume"
+          (click)="view(resume)"><mat-icon>visibility</mat-icon></button><button mat-icon-button
+          aria-label="Delete resume" (click)="delete(resume)"><mat-icon>delete_outline</mat-icon></button></span>
+    </div>
+  </ng-container>
+</section>

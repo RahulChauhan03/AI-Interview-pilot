@@ -1,0 +1,54 @@
+<div class="heading">
+  <div>
+    <p class="eyebrow">PRACTICE STUDIO</p>
+    <h1>Interviews</h1>
+    <p>Practice the conversations that move your career forward.</p>
+  </div>
+</div>
+<section class="start">
+  <div>
+    <span class="spark"><mat-icon>auto_awesome</mat-icon> AI-POWERED PRACTICE</span>
+    <h2>Start a focused<br />practice interview.</h2>
+    <p>
+      Use your resume and a saved job description to generate a structured, role-specific interview
+      session.
+    </p>
+    <button mat-flat-button>Start new interview <mat-icon>arrow_forward</mat-icon></button>
+  </div>
+  <div class="illustration"><mat-icon>forum</mat-icon><i></i><b></b></div>
+</section>
+<div class="stats">
+  <div>
+    <span>3</span>
+    <p>Practice sessions</p>
+  </div>
+  <div>
+    <span>78%</span>
+    <p>Average score</p>
+  </div>
+  <div>
+    <span>2</span>
+    <p>Roles prepared</p>
+  </div>
+</div>
+<section class="history">
+  <div class="history-title">
+    <div>
+      <h2>Previous interviews</h2>
+      <p>Review your completed practice sessions.</p>
+    </div>
+    <button mat-button>View all</button>
+  </div>
+  <article *ngFor="let item of sessions">
+    <div class="circle">
+      <span>{{ item.score }}</span
+      ><small>/100</small>
+    </div>
+    <div>
+      <b>{{ item.role }}</b>
+      <p>{{ item.company }} · {{ item.date }}</p>
+    </div>
+    <span class="complete"><mat-icon>check_circle</mat-icon> Completed</span
+    ><button mat-icon-button><mat-icon>arrow_forward</mat-icon></button>
+  </article>
+</section>

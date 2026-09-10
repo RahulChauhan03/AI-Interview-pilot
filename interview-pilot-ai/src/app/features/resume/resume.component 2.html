@@ -1,0 +1,71 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">RESUME LIBRARY</p>
+    <h1>My resumes</h1>
+    <p>Keep the versions you use for each opportunity in one place.</p>
+  </div>
+</div>
+<section class="upload">
+
+  <div class="upload-icon">
+    <mat-icon>upload_file</mat-icon>
+  </div>
+
+  <h2>Upload a resume</h2>
+
+  <p>
+    Drag and drop your PDF or DOCX here,
+    or choose a file from your computer.
+  </p>
+
+  <!-- Hidden input -->
+  <input
+      #fileInput
+      type="file"
+      hidden
+      accept=".pdf,.doc,.docx"
+      (change)="onFileSelected($event)"
+  />
+
+  <!-- Button -->
+  <button
+      mat-stroked-button
+      (click)="fileInput.click()">
+
+      <mat-icon>attach_file</mat-icon>
+      Browse files
+
+  </button>
+
+  <small>
+      PDF or DOCX • Maximum file size 10 MB
+  </small>
+
+</section>
+<section class="list-header">
+  <div>
+    <h2>Uploaded resumes</h2>
+    <p>2 files in your library</p>
+  </div>
+  <button mat-button>Sort by: Recent <mat-icon>expand_more</mat-icon></button>
+</section>
+<section class="table">
+  <div class="row table-head">
+    <span>RESUME</span><span>UPLOADED</span><span>STATUS</span><span></span>
+  </div>
+  <div class="row" *ngFor="let r of resumes">
+    <div class="resume-name">
+      <div><mat-icon>description</mat-icon></div>
+      <span
+        ><b>{{ r.name }}</b
+        ><small>PDF document · 248 KB</small></span
+      >
+    </div>
+    <span>{{ r.date }}</span
+    ><span class="status">{{ r.status }}</span
+    ><span class="row-actions"
+      ><button mat-icon-button><mat-icon>visibility</mat-icon></button
+      ><button mat-icon-button><mat-icon>more_horiz</mat-icon></button></span
+    >
+  </div>
+</section>

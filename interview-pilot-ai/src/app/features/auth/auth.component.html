@@ -1,0 +1,155 @@
+<section class="auth-page">
+  <div class="auth-intro">
+    <a class="auth-brand"><span>IP</span>Interview Pilot <b>AI</b></a>
+    <div>
+      <p class="eyebrow">CAREER INTELLIGENCE PLATFORM</p>
+      <h1>Prepare with<br /><em>confidence.</em></h1>
+      <p class="intro-copy">
+        Your focused workspace to build stronger applications and ace every interview.
+      </p>
+    </div>
+    <div class="quote"><span>“</span>Turn every opportunity into your best conversation.</div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-card">
+      <a class="mobile-brand">Interview Pilot <b>AI</b></a>
+      <ng-container *ngIf="isForgotPassword; else resetPasswordOrAuth">
+        <p class="eyebrow">PASSWORD RECOVERY</p>
+        <h2>Forgot your password?</h2>
+        <p class="muted">Enter your email and we’ll send a link to reset your password.</p>
+        <p *ngIf="authError" class="auth-error" role="alert">{{ authError }}</p>
+        <p *ngIf="successMessage" class="auth-success" role="status">{{ successMessage }}</p>
+        <form [formGroup]="forgotPasswordForm" (ngSubmit)="submitForgotPassword()" *ngIf="!successMessage">
+          <mat-form-field appearance="outline">
+            <mat-label>Email address</mat-label>
+            <input matInput formControlName="email" type="email" placeholder="you@example.com" />
+          </mat-form-field>
+          <button mat-flat-button class="primary-btn" type="submit">
+            Send reset link <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </form>
+        <p class="switch"><a routerLink="/login">Back to sign in</a></p>
+      </ng-container>
+      <ng-template #resetPasswordOrAuth>
+        <ng-container *ngIf="isResetPassword; else accountAuth">
+          <p class="eyebrow">CHOOSE A NEW PASSWORD</p>
+          <h2>Reset your password</h2>
+          <p class="muted">Create a strong new password for your account.</p>
+          <p *ngIf="authError" class="auth-error" role="alert">{{ authError }}</p>
+          <p *ngIf="successMessage" class="auth-success" role="status">{{ successMessage }}</p>
+          <form [formGroup]="resetPasswordForm" (ngSubmit)="submitResetPassword()" *ngIf="!successMessage">
+            <mat-form-field appearance="outline">
+              <mat-label>New password</mat-label>
+              <input matInput formControlName="password" [type]="showRegisterPassword ? 'text' : 'password'" />
+              <button mat-icon-button matSuffix type="button" (click)="showRegisterPassword = !showRegisterPassword">
+                <mat-icon>{{ showRegisterPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Confirm new password</mat-label>
+              <input matInput formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" />
+              <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword = !showConfirmPassword">
+                <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </mat-form-field>
+            <p class="hint">Use 8+ characters with uppercase, lowercase, number and special character.</p>
+            <button mat-flat-button class="primary-btn" type="submit">Reset password <mat-icon>arrow_forward</mat-icon></button>
+          </form>
+          <p class="switch"><a routerLink="/login">Back to sign in</a></p>
+        </ng-container>
+      </ng-template>
+      <ng-template #accountAuth>
+      <ng-container *ngIf="isLogin; else registration"
+        ><p class="eyebrow">WELCOME BACK</p>
+        <h2>Sign in to your workspace</h2>
+        <p class="muted">Continue your interview preparation journey.</p>
+        <p *ngIf="authError" class="auth-error" role="alert">{{ authError }}</p>
+        <form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+          <mat-form-field appearance="outline"
+            ><mat-label>Email address</mat-label
+            ><input
+              matInput
+              formControlName="email"
+              type="email"
+              placeholder="you@example.com"
+            /></mat-form-field
+          ><mat-form-field appearance="outline"
+            ><mat-label>Password</mat-label
+            ><input
+              matInput
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+            /><button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="showPassword = !showPassword"
+            >
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button></mat-form-field
+          >
+          <div class="form-row">
+            <!-- <mat-checkbox formControlName="rememberMe">Remember me</mat-checkbox
+            > -->
+            <a routerLink="/forgot-password">Forgot password?</a>
+          </div>
+          <button mat-flat-button class="primary-btn" type="submit">
+            Sign in <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </form>
+        <p class="switch">
+          New to Interview Pilot? <a routerLink="/register">Create an account</a>
+        </p></ng-container
+      >
+      <ng-template #registration
+        ><p class="eyebrow">START PREPARING</p>
+        <h2>Create your account</h2>
+        <p class="muted">Get your interview workspace ready in minutes.</p>
+        <p *ngIf="authError" class="auth-error" role="alert">{{ authError }}</p>
+        <form [formGroup]="registerForm" (ngSubmit)="submitRegister()">
+          <div class="two-cols">
+            <mat-form-field appearance="outline"
+              ><mat-label>First name</mat-label
+              ><input matInput formControlName="firstName" /></mat-form-field
+            ><mat-form-field appearance="outline"
+              ><mat-label>Last name</mat-label><input matInput formControlName="lastName"
+            /></mat-form-field>
+          </div>
+          <mat-form-field appearance="outline"
+            ><mat-label>Email address</mat-label
+            ><input matInput formControlName="email" type="email" /></mat-form-field
+          ><mat-form-field appearance="outline"
+            ><mat-label>Password</mat-label
+            ><input matInput formControlName="password" [type]="showRegisterPassword ? 'text' : 'password'" /><button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="showRegisterPassword = !showRegisterPassword"
+            >
+              <mat-icon>{{ showRegisterPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button></mat-form-field
+          ><mat-form-field appearance="outline"
+            ><mat-label>Confirm password</mat-label
+            ><input matInput formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
+          /><button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="showConfirmPassword = !showConfirmPassword"
+            >
+              <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button></mat-form-field>
+          <p class="hint">
+            Use 8+ characters with uppercase, lowercase, number and special character.
+          </p>
+          <button mat-flat-button class="primary-btn" type="submit">
+            Create account <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </form>
+        <p class="switch">
+          Already have an account? <a routerLink="/login">Sign in</a>
+        </p></ng-template>
+      </ng-template>
+    </div>
+  </div>
+</section>

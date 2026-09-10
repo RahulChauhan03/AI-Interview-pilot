@@ -1,0 +1,53 @@
+<div class="page-heading">
+  <p class="eyebrow">ROLE CONTEXT</p>
+  <h1>Job descriptions</h1>
+  <p>Save the roles you are targeting to make every practice session relevant.</p>
+</div>
+<section class="editor">
+  <div class="section-title">
+    <div>
+      <h2>Add a job description</h2>
+      <p>Paste the full posting and we will keep it ready for your preparation.</p>
+    </div>
+  </div>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="twocol">
+      <mat-form-field appearance="outline"
+        ><mat-label>Company name</mat-label
+        ><input matInput formControlName="company" placeholder="e.g. Acme Inc." /></mat-form-field
+      ><mat-form-field appearance="outline"
+        ><mat-label>Role title</mat-label
+        ><input matInput formControlName="role" placeholder="e.g. Senior Product Designer"
+      /></mat-form-field>
+    </div>
+    <mat-form-field appearance="outline"
+      ><mat-label>Paste job description</mat-label
+      ><textarea
+        matInput
+        rows="7"
+        formControlName="description"
+        placeholder="Paste the job description, responsibilities and requirements here..."
+      ></textarea>
+    </mat-form-field>
+    <div class="save">
+      <span>All information is stored securely in your workspace.</span
+      ><button mat-flat-button type="submit"><mat-icon>add</mat-icon> Save job description</button>
+    </div>
+  </form>
+</section>
+<section class="previous">
+  <div class="section-title">
+    <div>
+      <h2>Saved job descriptions</h2>
+      <p>Your recently added target roles</p>
+    </div>
+  </div>
+  <div class="job" *ngFor="let job of jobs">
+    <div class="job-icon"><mat-icon>business_center</mat-icon></div>
+    <div>
+      <b>{{ job.role }}</b>
+      <p>{{ job.company }} · Added {{ job.date }}</p>
+    </div>
+    <span class="tag">Ready</span><button mat-icon-button><mat-icon>more_horiz</mat-icon></button>
+  </div>
+</section>
