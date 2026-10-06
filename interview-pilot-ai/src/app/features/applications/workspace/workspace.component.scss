@@ -1,0 +1,30 @@
+.workspace-header {
+  margin-bottom: 16px;
+
+  .eyebrow {
+    margin-bottom: 4px;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+}
+
+.workspace-tabs {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--app-border);
+
+  .mat-icon {
+    margin-right: 6px;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspace-tabs .mat-icon {
+    display: none;
+  }
+}

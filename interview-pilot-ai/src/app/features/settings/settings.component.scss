@@ -1,0 +1,19 @@
+mat-button-toggle-group .mat-icon {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.setting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--app-border);
+  font-size: 14px;
+
+  p {
+    margin: 2px 0 0;
+  }
+}

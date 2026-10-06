@@ -1,0 +1,42 @@
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Admin console</p>
+    <h1>Users</h1>
+    <p>Everyone with an account. Passwords are never shown.</p>
+  </div>
+</header>
+
+<section class="card">
+  <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+    <mat-label>Search by name or email</mat-label>
+    <input matInput [value]="search()" (input)="search.set($any($event.target).value)" />
+  </mat-form-field>
+  @if (loading()) {
+    <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
+  } @else if (failed()) {
+    <div class="error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <h3>Users could not be loaded</h3>
+      <button mat-stroked-button (click)="load()">Retry</button>
+    </div>
+  } @else if (!filtered().length) {
+    <div class="empty-state"><mat-icon>group</mat-icon><h3>No users found</h3></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th class="hide-sm">Joined</th></tr></thead>
+        <tbody>
+          @for (user of filtered(); track user.id) {
+            <tr>
+              <td class="cell-title">{{ user.firstName }} {{ user.lastName }}</td>
+              <td>{{ user.email }}</td>
+              <td><span class="pill" [class.warning]="user.role === 'ADMIN'">{{ user.role === 'ADMIN' ? 'Admin' : 'User' }}</span></td>
+              <td class="hide-sm">{{ user.createdAt | date: 'MMM d, y' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="subtle">{{ filtered().length }} of {{ users().length }} users</p>
+  }
+</section>

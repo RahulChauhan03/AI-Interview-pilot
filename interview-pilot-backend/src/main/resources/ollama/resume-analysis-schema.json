@@ -1,0 +1,78 @@
+{
+  "type": "object",
+  "properties": {
+    "personalInformation": {
+      "type": "object",
+      "properties": {
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "location": { "type": "string" },
+        "linkedIn": { "type": "string" },
+        "github": { "type": "string" },
+        "portfolio": { "type": "string" }
+      },
+      "required": ["firstName", "lastName", "email", "phone", "location", "linkedIn", "github", "portfolio"]
+    },
+    "summary": { "type": "string" },
+    "yearsOfExperience": { "type": "string" },
+    "language": { "type": "string" },
+    "experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company": { "type": "string" },
+          "designation": { "type": "string" },
+          "duration": { "type": "string" },
+          "location": { "type": "string" },
+          "responsibilities": { "type": "array", "items": { "type": "string" } },
+          "technologies": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["company", "designation", "duration", "location", "responsibilities", "technologies"]
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "institution": { "type": "string" },
+          "degree": { "type": "string" },
+          "fieldOfStudy": { "type": "string" },
+          "duration": { "type": "string" },
+          "grade": { "type": "string" }
+        },
+        "required": ["institution", "degree", "fieldOfStudy", "duration", "grade"]
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "technologies": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["name", "description", "technologies"]
+      }
+    },
+    "skills": { "type": "array", "items": { "type": "string" } },
+    "technicalSkills": { "type": "array", "items": { "type": "string" } },
+    "softSkills": { "type": "array", "items": { "type": "string" } },
+    "certifications": { "type": "array", "items": { "type": "string" } },
+    "achievements": { "type": "array", "items": { "type": "string" } },
+    "languages": { "type": "array", "items": { "type": "string" } },
+    "companies": { "type": "array", "items": { "type": "string" } },
+    "designations": { "type": "array", "items": { "type": "string" } },
+    "keywords": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": [
+    "personalInformation", "summary", "yearsOfExperience", "language",
+    "experience", "education", "projects",
+    "skills", "technicalSkills", "softSkills", "certifications", "achievements",
+    "languages", "companies", "designations", "keywords"
+  ]
+}

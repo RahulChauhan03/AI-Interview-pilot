@@ -5,6 +5,7 @@ import { ApiResponse } from '../models/api-response.model';
 import { ApiClientService } from './api-client.service';
 import { ApiErrorHandlerService } from './api-error-handler.service';
 import { HttpOptions } from './http-options';
+import { DownloadedFile, fileNameFromContentDisposition } from './download';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -65,6 +66,17 @@ export class ApiService {
         const response = event as HttpResponse<ApiResponse<T>>;
         return { kind: 'response' as const, data: this.extractData(response.body as ApiResponse<T>) };
       }),
+      catchError((error) => this.errorHandler.handle(error)),
+    );
+  }
+
+  /** A generated file (PDF, ZIP) with the file name the server chose. */
+  download(url: string, options?: HttpOptions): Observable<DownloadedFile> {
+    return this.apiClient.download(url, options).pipe(
+      map((response) => ({
+        blob: response.body ?? new Blob(),
+        fileName: fileNameFromContentDisposition(response.headers.get('Content-Disposition')) ?? 'download',
+      })),
       catchError((error) => this.errorHandler.handle(error)),
     );
   }

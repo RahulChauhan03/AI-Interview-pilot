@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,8 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscription, filter, switchMap, timer, withLatestFrom } from 'rxjs';
 import { NotificationService } from '../../core/services/notification.service';
-import { DeleteResumeDialogComponent } from './delete-resume-dialog.component';
-import { ResumeDetailsDialogComponent } from './resume-details-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog.component';
 import { ResumeMapper } from './resume.mapper';
 import { ResumeStatus } from './models/resume-status.enum';
 import { ResumeSummary } from './models/resume.model';
@@ -24,7 +24,10 @@ export class ResumeComponent implements OnInit, OnDestroy {
   readonly mapper = inject(ResumeMapper);
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
   private pollingSubscription?: Subscription;
+  readonly loaded = signal(false);
+  readonly loadError = signal(false);
 
   readonly resumes$ = this.resumeService.resumes$;
   readonly parsedStatus = ResumeStatus.Parsed;
@@ -35,7 +38,7 @@ export class ResumeComponent implements OnInit, OnDestroy {
   isDragging = false;
 
   ngOnInit(): void {
-    this.resumeService.refresh().subscribe();
+    this.reload();
     this.pollingSubscription = timer(5000, 5000).pipe(
       withLatestFrom(this.resumes$),
       filter(([, resumes]) => this.mapper.hasPendingProcessing(resumes)),
@@ -44,6 +47,18 @@ export class ResumeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void { this.pollingSubscription?.unsubscribe(); }
+
+  reload(): void {
+    this.loadError.set(false);
+    this.resumeService.refresh().subscribe({
+      next: () => this.loaded.set(true),
+      error: () => { this.loadError.set(true); this.loaded.set(true); },
+    });
+  }
+
+  statusLabel(status: ResumeStatus): string {
+    return { UPLOADED: 'Queued', PROCESSING: 'Processing', PARSED: 'Parsed', FAILED: 'Failed' }[status] ?? status;
+  }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -79,18 +94,13 @@ export class ResumeComponent implements OnInit, OnDestroy {
 
   view(resume: ResumeSummary): void {
     if (resume.status !== ResumeStatus.Parsed) { this.notifications.info('This resume is still being processed.'); return; }
-    this.resumeService.get(resume.id).pipe(
-      switchMap((details) => this.resumeService.getParsed(resume.id).pipe(
-        switchMap((parsed) => this.dialog.open(ResumeDetailsDialogComponent, {
-          data: { resume: details, parsed }, width: '90vw', height: '92vh', maxWidth: '90vw', maxHeight: '92vh',
-          panelClass: 'resume-dashboard-dialog', backdropClass: 'resume-dashboard-backdrop',
-        }).afterClosed()),
-      )),
-    ).subscribe();
+    this.router.navigate(['/app/resumes', resume.id]);
   }
 
   delete(resume: ResumeSummary): void {
-    this.dialog.open(DeleteResumeDialogComponent, { data: resume.originalFileName }).afterClosed().pipe(
+    this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'Delete resume?', message: `This removes "${resume.originalFileName}" from your library.`, confirmLabel: 'Delete' },
+    }).afterClosed().pipe(
       filter((confirmed): confirmed is true => confirmed === true),
       switchMap(() => this.resumeService.delete(resume.id)),
       switchMap(() => this.resumeService.refresh()),

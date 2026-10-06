@@ -1,96 +1,113 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services/auth.service';
-import { User } from '../../features/auth/models/user.model';
+import { ResumeStatus } from '../resume/models/resume-status.enum';
+import { ResumeSummary } from '../resume/models/resume.model';
+import { ResumeService } from '../resume/services/resume.service';
+import { JobDescription, ResumeMatch } from '../job-description/models/job-description.model';
+import { JobDescriptionService } from '../job-description/services/job-description.service';
+import { MatchService, matchLabel } from '../matches/services/match.service';
+import { Interview } from '../interview/models/interview.model';
+import { InterviewService } from '../interview/services/interview.service';
 
+interface NextStep {
+  title: string;
+  text: string;
+  action: string;
+  link: string;
+  icon: string;
+}
+
+/** Candidate home: real counts, the most useful next step and the latest activity. Nothing is estimated. */
 @Component({
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule],
+  imports: [RouterLink, DatePipe, DecimalPipe, TitleCasePipe, MatButtonModule, MatIconModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly resumeService = inject(ResumeService);
+  private readonly jobService = inject(JobDescriptionService);
+  private readonly matchService = inject(MatchService);
+  private readonly interviewService = inject(InterviewService);
 
-  user: User | null = null;
-  readonly actions = [
-    {
-      title: 'Upload resume',
-      copy: 'Add your latest CV',
-      icon: 'upload_file',
-      color: 'blue',
-      link: '/resumes',
-    },
-    {
-      title: 'Job descriptions',
-      copy: 'Save target roles',
-      icon: 'assignment',
-      color: 'purple',
-      link: '/job-descriptions',
-    },
-    {
-      title: 'Practice interview',
-      copy: 'Start a new session',
-      icon: 'forum',
-      color: 'orange',
-      link: '/interviews',
-    },
-    {
-      title: 'My profile',
-      copy: 'Manage your account',
-      icon: 'person_outline',
-      color: 'green',
-      link: '/profile',
-    },
-  ];
+  readonly loading = signal(true);
+  readonly failed = signal(false);
+  readonly resumes = signal<ResumeSummary[]>([]);
+  readonly jobs = signal<JobDescription[]>([]);
+  readonly matches = signal<ResumeMatch[]>([]);
+  readonly interviews = signal<Interview[]>([]);
 
-  readonly activity = [
-    {
-      title: 'Resume activity',
-      sub: 'Most recent upload or update',
-      time: 'Today',
-      icon: 'description',
-    },
-    {
-      title: 'Interview prep',
-      sub: 'Practice sessions and job context',
-      time: 'Recently updated',
-      icon: 'assignment',
-    },
-    {
-      title: 'Profile status',
-      sub: 'Account details synced with your workspace',
-      time: 'Live',
-      icon: 'forum',
-    },
-  ];
+  readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+    const part = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const name = this.auth.currentUser()?.firstName;
+    return name ? `${part}, ${name}` : part;
+  });
+  readonly parsedResumes = computed(() => this.resumes().filter((resume) => resume.status === ResumeStatus.Parsed).length);
+  readonly completedInterviews = computed(() => this.interviews().filter((interview) => interview.status === 'COMPLETED'));
+  readonly averageScore = computed(() => {
+    const scores = this.completedInterviews().map((interview) => interview.overallScore ?? 0);
+    return scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : null;
+  });
+  readonly bestMatch = computed(() => (this.matches().length ? Math.max(...this.matches().map((match) => match.matchScore)) : null));
+  readonly latestResume = computed(() => this.resumes()[0] ?? null);
+  readonly latestMatch = computed(() => this.matches()[0] ?? null);
+  readonly latestInterview = computed(() => this.interviews()[0] ?? null);
+  readonly nextStep = computed<NextStep>(() => this.computeNextStep());
+  readonly matchLabel = matchLabel;
 
   ngOnInit(): void {
-    this.user = JSON.parse(sessionStorage.getItem('current_user')!) || null;
-    if (!this.user) {
-      this.getUser();
-    }
-
+    this.load();
   }
 
-  getUser() {
-    this.auth.getProfile().subscribe({
-      next: (profile) => {
-        this.user = profile;
+  load(): void {
+    this.loading.set(true);
+    this.failed.set(false);
+    forkJoin({
+      resumes: this.resumeService.refresh(),
+      jobs: this.jobService.list(),
+      matches: this.matchService.list(),
+      interviews: this.interviewService.list(),
+    }).subscribe({
+      next: ({ resumes, jobs, matches, interviews }) => {
+        this.resumes.set(resumes);
+        this.jobs.set(jobs);
+        this.matches.set(matches);
+        this.interviews.set(interviews);
+        this.loading.set(false);
       },
-      error: () => {
-        this.user = this.auth.getCurrentUser();
-      },
+      error: () => { this.failed.set(true); this.loading.set(false); },
     });
   }
 
-  get displayName(): string {
-    return this.user?.firstName ? this.user.firstName : 'there';
-  }
-
-  get roleLabel(): string {
-    return this.user?.role ?? 'Product Designer';
+  private computeNextStep(): NextStep {
+    const inProgress = this.interviews().find((interview) => interview.status === 'IN_PROGRESS');
+    if (inProgress) {
+      return { title: 'Finish your interview', text: `You have answered ${inProgress.answeredQuestions} of ${inProgress.totalQuestions} questions for ${inProgress.jobTitle}.`,
+        action: 'Continue interview', link: `/app/interviews/${inProgress.id}`, icon: 'play_circle' };
+    }
+    if (!this.resumes().length) {
+      return { title: 'Upload your resume', text: 'Everything starts with your resume: it is used for matching and for interview questions.',
+        action: 'Upload resume', link: '/app/resumes', icon: 'upload_file' };
+    }
+    if (!this.parsedResumes()) {
+      return { title: 'Your resume is being analysed', text: 'This usually takes a minute or two. You can add a job description meanwhile.',
+        action: 'Add job description', link: '/app/job-descriptions/new', icon: 'hourglass_top' };
+    }
+    if (!this.jobs().length) {
+      return { title: 'Add a job you are targeting', text: 'Paste a job description to compare it with your resume and practise for it.',
+        action: 'Add job description', link: '/app/job-descriptions/new', icon: 'work_outline' };
+    }
+    if (!this.matches().length) {
+      return { title: 'See how well you match', text: 'Compare your resume with a job description to find your strengths and gaps.',
+        action: 'Match resume', link: '/app/matches', icon: 'join_inner' };
+    }
+    return { title: 'Practise an interview', text: 'Generate questions for your target job and get feedback on every answer.',
+      action: 'Start interview', link: '/app/interviews', icon: 'forum' };
   }
 }

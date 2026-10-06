@@ -1,0 +1,29 @@
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--app-border);
+  font-size: 14px;
+
+  &:first-of-type {
+    border-top: 0;
+  }
+
+  > div {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--app-danger);
+
+  &.up {
+    background: var(--app-success);
+  }
+}

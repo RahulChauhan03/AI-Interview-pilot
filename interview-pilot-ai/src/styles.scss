@@ -1,0 +1,451 @@
+@use '@angular/material' as mat;
+
+/*
+ * Theme
+ * Light/dark is driven only by the CSS `color-scheme` of <html> (set by ThemeService and the inline script in
+ * index.html): "light", "dark" or "light dark" (= follow the OS). Material's tokens and the app tokens below
+ * are all `light-dark()` values, so no component needs its own dark-mode styles.
+ */
+html {
+  color-scheme: light dark;
+  @include mat.theme((
+    color: (primary: mat.$azure-palette, tertiary: mat.$blue-palette, theme-type: color-scheme),
+    typography: 'DM Sans',
+    density: 0,
+  ));
+
+  --app-bg: light-dark(#f6f7f9, #0f1217);
+  --app-surface: light-dark(#ffffff, #171b22);
+  --app-surface-muted: light-dark(#f8f9fb, #1c212a);
+  --app-surface-hover: light-dark(#f1f4f8, #222834);
+  --app-border: light-dark(#e3e7ed, #2a313c);
+  --app-border-strong: light-dark(#cdd4de, #3a4350);
+  --app-text: light-dark(#17202e, #e7ebf1);
+  --app-text-muted: light-dark(#596474, #a1abba);
+  --app-text-subtle: light-dark(#848e9c, #747f8f);
+  --app-primary: light-dark(#2160d9, #7aa7ff);
+  --app-primary-soft: light-dark(#ebf1fd, #1b2943);
+  --app-success: light-dark(#18794e, #5fd39a);
+  --app-success-soft: light-dark(#e7f5ee, #12291e);
+  --app-warning: light-dark(#a35a00, #f2b65a);
+  --app-warning-soft: light-dark(#fdf3e3, #2f2412);
+  --app-danger: light-dark(#c4311f, #ff8a7a);
+  --app-danger-soft: light-dark(#fdecea, #351a17);
+  --app-shadow-color: light-dark(rgba(16, 24, 40, 0.06), rgba(0, 0, 0, 0.35));
+  --app-radius: 12px;
+  --app-radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: 'DM Sans', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--app-primary);
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--app-primary);
+  outline-offset: 2px;
+}
+
+.material-icons,
+.mat-icon {
+  font-family: 'Material Icons Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+}
+
+.mat-icon {
+  height: 20px !important;
+  width: 20px !important;
+  font-size: 20px;
+}
+
+/* ---------- Page structure ---------- */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: var(--app-text-muted);
+    font-size: 14px;
+  }
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-primary);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 20px;
+  box-shadow: 0 1px 2px var(--app-shadow-color);
+}
+
+.card + .card,
+.stack > * + * {
+  margin-top: 16px;
+}
+
+/* Cards inside grids are spaced by the grid gap, not by the sibling margin above. */
+.stat-grid > .stat,
+.grid-2 > .card {
+  margin-top: 0;
+}
+
+.card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  @extend .card;
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+
+  .stat-value {
+    margin-top: 6px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-hint {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--app-text-subtle);
+  }
+}
+
+.muted {
+  color: var(--app-text-muted);
+}
+
+.subtle {
+  color: var(--app-text-subtle);
+  font-size: 12px;
+}
+
+.prewrap {
+  white-space: pre-line;
+}
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--app-text-muted);
+    border-bottom: 1px solid var(--app-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px;
+    border-bottom: 1px solid var(--app-border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr:hover {
+    background: var(--app-surface-hover);
+  }
+
+  .cell-title {
+    font-weight: 600;
+  }
+
+  .cell-actions {
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- Status pills, tags, score ---------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--app-surface-hover);
+  color: var(--app-text-muted);
+
+  &.success { background: var(--app-success-soft); color: var(--app-success); }
+  &.warning { background: var(--app-warning-soft); color: var(--app-warning); }
+  &.danger { background: var(--app-danger-soft); color: var(--app-danger); }
+  &.info { background: var(--app-primary-soft); color: var(--app-primary); }
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
+  font-size: 12px;
+  color: var(--app-text);
+
+  &.success { border-color: transparent; background: var(--app-success-soft); color: var(--app-success); }
+  &.danger { border-color: transparent; background: var(--app-danger-soft); color: var(--app-danger); }
+}
+
+/* Circular score: <div class="score-ring good" [style.--value]="score">…</div> */
+.score-ring {
+  --value: 0;
+  --ring-color: var(--app-primary);
+  --size: 72px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: conic-gradient(var(--ring-color) calc(var(--value) * 1%), var(--app-border) 0);
+  font-weight: 700;
+
+  > span {
+    display: grid;
+    place-items: center;
+    width: calc(var(--size) - 12px);
+    height: calc(var(--size) - 12px);
+    border-radius: 50%;
+    background: var(--app-surface);
+    font-size: calc(var(--size) / 4);
+  }
+
+  &.good { --ring-color: var(--app-success); }
+  &.fair { --ring-color: var(--app-warning); }
+  &.low { --ring-color: var(--app-danger); }
+  &.large { --size: 120px; }
+  &.small { --size: 44px; }
+}
+
+/* ---------- States ---------- */
+.empty-state {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--app-text-muted);
+
+  .mat-icon {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 40px;
+    color: var(--app-text-subtle);
+  }
+
+  h3 {
+    margin: 12px 0 4px;
+    font-size: 16px;
+    color: var(--app-text);
+  }
+
+  p {
+    margin: 0 auto 16px;
+    max-width: 420px;
+    font-size: 14px;
+  }
+}
+
+.error-state {
+  @extend .empty-state;
+
+  .mat-icon {
+    color: var(--app-danger);
+  }
+}
+
+.inline-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--app-text-muted);
+
+  mat-progress-bar {
+    flex-basis: 100%;
+  }
+}
+
+.skeleton {
+  display: block;
+  height: 14px;
+  margin: 10px 0;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--app-surface-hover) 25%, var(--app-border) 50%, var(--app-surface-hover) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+
+  &.tall { height: 72px; }
+  &.short { width: 40%; }
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ---------- Forms ---------- */
+.full-width {
+  width: 100%;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* ---------- Material overrides ---------- */
+.mat-mdc-snack-bar-container.snackbar-error {
+  --mat-snack-bar-button-color: var(--app-danger);
+}
+
+.mat-mdc-snack-bar-container.snackbar-success {
+  --mat-snack-bar-button-color: var(--app-success);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .page-header h1 {
+    font-size: 22px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .grid-2,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hide-sm {
+    display: none;
+  }
+}

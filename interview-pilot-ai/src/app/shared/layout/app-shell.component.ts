@@ -1,39 +1,77 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
+
+interface NavItem {
+  label: string;
+  icon: string;
+  link: string;
+}
+
+const APP_NAV: NavItem[] = [
+  { label: 'Dashboard', icon: 'space_dashboard', link: '/app/dashboard' },
+  { label: 'Resumes', icon: 'description', link: '/app/resumes' },
+  { label: 'Job descriptions', icon: 'work_outline', link: '/app/job-descriptions' },
+  { label: 'Job matches', icon: 'join_inner', link: '/app/matches' },
+  { label: 'Interviews', icon: 'forum', link: '/app/interviews' },
+];
+const APP_ACCOUNT_NAV: NavItem[] = [
+  { label: 'Profile', icon: 'person_outline', link: '/app/profile' },
+  { label: 'Settings', icon: 'settings', link: '/app/settings' },
+];
+const ADMIN_NAV: NavItem[] = [
+  { label: 'Dashboard', icon: 'monitoring', link: '/admin/dashboard' },
+  { label: 'Users', icon: 'group', link: '/admin/users' },
+  { label: 'Activity', icon: 'history', link: '/admin/activity' },
+];
+const ADMIN_ACCOUNT_NAV: NavItem[] = [
+  { label: 'Profile', icon: 'person_outline', link: '/admin/profile' },
+  { label: 'Settings', icon: 'settings', link: '/admin/settings' },
+];
+
+/** Layout for both areas: route data `area` ('app' | 'admin') selects the navigation. */
 @Component({
   selector: 'app-shell',
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-  ],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatSidenavModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })
-export class AppShellComponent {
-  private readonly auth = inject(AuthService);
+export class AppShellComponent implements OnInit {
+  readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
   private readonly router = inject(Router);
-  mobile = signal(typeof window !== 'undefined' && window.innerWidth < 760);
-  nav = [
-    { label: 'Dashboard', icon: 'grid_view', link: '/dashboard' },
-    { label: 'Resumes', icon: 'description', link: '/resumes' },
-    { label: 'Job descriptions', icon: 'assignment', link: '/job-descriptions' },
-    { label: 'Interviews', icon: 'forum', link: '/interviews' },
-    { label: 'Profile', icon: 'person_outline', link: '/profile' },
-  ];
+  private readonly area = inject(ActivatedRoute).snapshot.data['area'] as 'app' | 'admin';
+
+  readonly isAdminArea = this.area === 'admin';
+  readonly nav = this.isAdminArea ? ADMIN_NAV : APP_NAV;
+  readonly accountNav = this.isAdminArea ? ADMIN_ACCOUNT_NAV : APP_ACCOUNT_NAV;
+  readonly profileLink = this.accountNav[0].link;
+  readonly settingsLink = this.accountNav[1].link;
+
+  readonly mobile = toSignal(
+    inject(BreakpointObserver).observe('(max-width: 900px)').pipe(map((state) => state.matches)),
+    { initialValue: window.innerWidth <= 900 },
+  );
+  readonly email = computed(() => this.auth.currentUser()?.email ?? '');
+
+  ngOnInit(): void {
+    // The login response has no name, so load it once for the header.
+    if (!this.auth.currentUser()?.firstName) {
+      this.auth.getProfile().subscribe({ error: () => undefined });
+    }
+  }
+
   logout(): void {
-   this.auth.logout();
-    this.router.navigate(['/auth/login']);
+    this.auth.logout();
+    this.router.navigateByUrl('/login');
   }
 }

@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,9 +42,14 @@ public class ResumeServiceImpl implements ResumeService {
         Resume resume = Resume.builder().user(user).originalFileName(storedFile.getOriginalFileName())
                 .storedFileName(storedFile.getStoredFileName()).fileExtension(storedFile.getFileExtension())
                 .mimeType(storedFile.getMimeType()).fileSize(storedFile.getFileSize()).storagePath(storedFile.getStoragePath())
-                .status(ResumeStatus.PROCESSING).uploadTime(now).isDeleted(false).build();
+                .status(ResumeStatus.UPLOADED).uploadTime(now).isDeleted(false).build();
         Resume saved = resumeRepository.save(resume);
-        asyncProcessingService.process(saved.getId());
+        try {
+            asyncProcessingService.process(saved.getId());
+        } catch (TaskRejectedException exception) {
+            // Processing queue is full: the resume stays UPLOADED and the recovery job queues it later.
+            log.warn("Resume processing queue is full; resume {} will be processed later", saved.getId());
+        }
         return saved;
     }
 

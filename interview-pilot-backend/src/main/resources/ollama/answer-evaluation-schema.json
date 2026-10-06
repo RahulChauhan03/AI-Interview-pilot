@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "properties": {
+    "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "correctness": { "type": "string" },
+    "relevance": { "type": "string" },
+    "feedback": { "type": "string" },
+    "strengths": { "type": "array", "items": { "type": "string" } },
+    "improvements": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["score", "correctness", "relevance", "feedback", "strengths", "improvements"]
+}

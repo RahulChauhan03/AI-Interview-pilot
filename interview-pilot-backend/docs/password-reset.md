@@ -17,7 +17,7 @@ For Gmail, enable two-step verification and create a Google App Password; do not
 
 `spring.mail.host` and `spring.mail.port` identify the SMTP server; `spring.mail.username` and `spring.mail.password` provide its credentials; `mail.smtp.auth` enables SMTP authentication; and `mail.smtp.starttls.enable` upgrades the connection to TLS. The three timeout properties prevent an unavailable SMTP server from holding the HTTP request indefinitely. `app.frontend.reset-password-url` is the Angular route prefix, while `app.password-reset.token-expiration-minutes` and `app.password-reset.request-cooldown-seconds` control token lifetime and throttling without a code change.
 
-The provided SQL migration matches the entity. It is ready for Flyway if Flyway is introduced; with the current `spring.jpa.hibernate.ddl-auto=create`, Hibernate creates the same table for development. Use migrations and `validate`/`update` rather than `create` outside local development.
+The `password_reset_tokens` table is created by the Flyway migration `db/migration/V1__initial_schema.sql`. Hibernate runs with `spring.jpa.hibernate.ddl-auto=validate` and never changes the schema; any future change to this table must be a new `V<n>__*.sql` migration.
 
 ## API and security behavior
 

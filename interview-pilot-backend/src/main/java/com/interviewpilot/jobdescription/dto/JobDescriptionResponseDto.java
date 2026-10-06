@@ -19,4 +19,5 @@ public class JobDescriptionResponseDto {
     private String jobTitle;
     private String jobDescription;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

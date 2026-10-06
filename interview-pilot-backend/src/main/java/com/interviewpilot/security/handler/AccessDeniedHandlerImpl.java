@@ -30,6 +30,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
                 .message("You do not have permission to access this resource")
                 .timestamp(LocalDateTime.now())
                 .data(ErrorResponseDto.builder().error("ACCESS_DENIED").build())
+                .path(request.getRequestURI())
                 .build();
         objectMapper.writeValue(response.getOutputStream(), body);
     }

@@ -1,196 +1,48 @@
-<!-- <div class="page-header">
+<header class="page-header">
   <div>
-    <p class="eyebrow">ACCOUNT SETTINGS</p>
-    <h1>Account Settings</h1>
-    <p>Manage your account information and security.</p>
+    <h1>Profile</h1>
+    <p>Your account details.</p>
   </div>
-</div> -->
+</header>
 
-<div *ngIf="isLoading" class="loading-shell">
-  <div class="skeleton-hero-card">
-    <div class="skeleton-avatar"></div>
-    <div class="skeleton-copy">
-      <div class="skeleton-line title"></div>
-      <div class="skeleton-line subtitle"></div>
-      <div class="skeleton-pill-row">
-        <div class="skeleton-pill"></div>
-        <div class="skeleton-pill"></div>
+<section class="card">
+  @if (loading()) {
+    <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
+  } @else if (failed()) {
+    <div class="error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <h3>Your profile could not be loaded</h3>
+      <button mat-stroked-button (click)="load()">Retry</button>
+    </div>
+  } @else if (profile(); as profile) {
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>First name</mat-label>
+          <input matInput formControlName="firstName" autocomplete="given-name" />
+          <mat-error>First name is required (max 100 characters)</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Last name</mat-label>
+          <input matInput formControlName="lastName" autocomplete="family-name" />
+          <mat-error>Last name is required (max 100 characters)</mat-error>
+        </mat-form-field>
       </div>
-    </div>
-  </div>
-
-  <div class="skeleton-content-grid">
-    <div class="skeleton-card"></div>
-    <div class="skeleton-stack">
-      <div class="skeleton-card"></div>
-      <div class="skeleton-card"></div>
-    </div>
-  </div>
-</div>
-
-<div *ngIf="!isLoading && profile" class="profile-layout">
-  <section class="hero-card">
-    <div class="avatar">{{ initials }}</div>
-    <div class="hero-copy">
-      <h2>{{ displayName }}</h2>
-      <p>{{ displayEmail }}</p>
-      <div class="meta-row">
-        <span class="pill">{{ displayRole }}</span>
-        <span class="pill muted">Member since {{ displayMemberSince }}</span>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput [value]="profile.email" readonly />
+          <mat-hint>Your sign-in email cannot be changed here.</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <input matInput [value]="profile.role | titlecase" readonly />
+        </mat-form-field>
       </div>
-    </div>
-  </section>
-
-  <div class="content-grid">
-    <mat-card class="settings-card">
-      <div class="card-header">
-        <div>
-          <h3>Personal Information</h3>
-          <p>Update your profile details and professional summary.</p>
-        </div>
+      <p class="subtle">Member since {{ profile.createdAt | date: 'MMMM d, y' }} · Password and appearance are in <a [routerLink]="settingsLink">Settings</a>.</p>
+      <div class="form-actions">
+        <button mat-flat-button type="submit" [disabled]="saving() || form.pristine">{{ saving() ? 'Saving…' : 'Save changes' }}</button>
       </div>
-
-      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-        <div class="form-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>First Name</mat-label>
-            <input matInput formControlName="firstName" />
-            <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">First name is required.</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastName" />
-            <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">Last name is required.</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" />
-            <mat-error *ngIf="profileForm.get('email')?.hasError('email')">Enter a valid email.</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="phoneNumber" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Location</mat-label>
-            <input matInput formControlName="location" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Years of Experience</mat-label>
-            <input matInput type="number" formControlName="yearsOfExperience" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>LinkedIn URL</mat-label>
-            <input matInput formControlName="linkedInUrl" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>GitHub URL</mat-label>
-            <input matInput formControlName="githubUrl" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Current Job Title</mat-label>
-            <input matInput formControlName="currentJobTitle" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>About Me</mat-label>
-            <textarea matInput rows="4" formControlName="aboutMe"></textarea>
-          </mat-form-field>
-        </div>
-
-        <div class="actions-row">
-          <button mat-stroked-button type="button" (click)="resetProfileForm()">Cancel</button>
-          <button mat-flat-button color="primary" type="submit"
-            [disabled]="profileForm.invalid || !hasProfileChanges || isSubmitting">
-            Save Changes
-          </button>
-        </div>
-      </form>
-    </mat-card>
-
-    <div class="side-stack">
-      <mat-card class="settings-card">
-        <div class="card-header">
-          <div>
-            <h3>Security</h3>
-            <p>Update your password and protect your account.</p>
-          </div>
-        </div>
-
-        <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
-          <div class="form-grid single-column">
-            <mat-form-field appearance="outline">
-              <mat-label>Current Password</mat-label>
-              <input matInput type="password" formControlName="currentPassword" />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>New Password</mat-label>
-              <input matInput type="password" formControlName="newPassword" (input)="checkPasswordStrength()" />
-              <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">Minimum 8
-                characters.</mat-error>
-            </mat-form-field>
-
-            <div class="strength-block" *ngIf="passwordForm.get('newPassword')?.value">
-              <div class="strength-bar">
-                <span [class.weak]="passwordStrength === 'weak'" [class.medium]="passwordStrength === 'medium'"
-                  [class.strong]="passwordStrength === 'strong'"></span>
-              </div>
-              <p>Password strength: <strong>{{ passwordStrengthLabel }}</strong></p>
-            </div>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Confirm Password</mat-label>
-              <input matInput type="password" formControlName="confirmPassword" />
-            </mat-form-field>
-          </div>
-
-          <div class="actions-row">
-            <button mat-flat-button color="primary" type="submit"
-              [disabled]="passwordForm.invalid || isSubmitting">Update Password</button>
-          </div>
-        </form>
-      </mat-card>
-
-      <mat-card class="settings-card info-card">
-        <div class="card-header">
-          <div>
-            <h3>Account Information</h3>
-            <p>Read-only account details.</p>
-          </div>
-        </div>
-
-        <div class="info-grid">
-          <div>
-            <span>User ID</span>
-            <strong>{{ profile?.id || '—' }}</strong>
-          </div>
-          <div>
-            <span>Role</span>
-            <strong>{{ profile?.role || 'Member' }}</strong>
-          </div>
-          <div>
-            <span>Account Status</span>
-            <strong>Active</strong>
-          </div>
-          <div>
-            <span>Created At</span>
-            <strong>{{ profile?.createdAt || '—' }}</strong>
-          </div>
-          <div>
-            <span>Last Updated</span>
-            <strong>{{ profile?.updatedAt || '—' }}</strong>
-          </div>
-        </div>
-      </mat-card>
-    </div>
-  </div>
-</div>
+    </form>
+  }
+</section>

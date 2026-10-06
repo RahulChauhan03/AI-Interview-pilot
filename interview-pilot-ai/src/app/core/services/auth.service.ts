@@ -23,6 +23,17 @@ export class AuthService implements AuthInterface {
 
   readonly isAuthenticated = computed(() => this.isLoggedIn());
   readonly currentUser = this.user.asReadonly();
+  readonly isAdmin = computed(() => this.user()?.role === 'ADMIN');
+  readonly displayName = computed(() => {
+    const user = this.user();
+    const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
+    return name || user?.email || 'Account';
+  });
+  readonly initials = computed(() => {
+    const user = this.user();
+    const letters = (user?.firstName?.[0] ?? '') + (user?.lastName?.[0] ?? '');
+    return (letters || user?.email?.[0] || '?').toUpperCase();
+  });
 
   register(request: RegisterRequest): Observable<RegisterResponse> {
     return this.api
@@ -80,8 +91,21 @@ export class AuthService implements AuthInterface {
     this.token.set(null);
   }
 
+  /** A stored token only counts while it has not expired. */
   isLoggedIn(): boolean {
-    return Boolean(this.token());
+    const token = this.token();
+    return Boolean(token) && !this.isExpired(token as string);
+  }
+
+  /** Where a signed-in user lands: administrators get the admin console. */
+  homeUrl(): string {
+    return this.isAdmin() ? '/admin/dashboard' : '/app/dashboard';
+  }
+
+  /** Keeps the stored user in sync after a profile change. */
+  updateCurrentUser(changes: Partial<User>): void {
+    const current = this.user();
+    if (current) this.saveUser({ ...current, ...changes });
   }
 
   getCurrentUser(): User | null {
@@ -117,6 +141,16 @@ export class AuthService implements AuthInterface {
     this.removeToken();
     this.storage.clear();
     this.user.set(null);
+  }
+
+  /** Reads the JWT's exp claim; an unreadable token is treated as expired. */
+  private isExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
   }
 
   private readStoredUser(): User | null {

@@ -1,0 +1,113 @@
+<a class="back-link" routerLink="/app/resumes"><mat-icon>arrow_back</mat-icon>Resumes</a>
+
+@if (loading()) {
+  <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span><span class="skeleton"></span></div>
+} @else if (failed()) {
+  <div class="card error-state">
+    <mat-icon>error_outline</mat-icon>
+    <h3>This resume could not be loaded</h3>
+    <p>It may have been deleted.</p>
+    <button mat-stroked-button (click)="load()">Retry</button>
+  </div>
+} @else if (resume(); as resume) {
+  <header class="page-header">
+    <div>
+      <h1>{{ name() || resume.originalFileName }}</h1>
+      <p>{{ resume.originalFileName }} · uploaded {{ resume.uploadTime | date: 'MMM d, y' }}
+        @if (resume.processingTime) { · analysed in {{ resume.processingTime / 1000 | number: '1.0-0' }}s }</p>
+    </div>
+    <a mat-flat-button routerLink="/app/matches"><mat-icon>join_inner</mat-icon>Match with a job</a>
+  </header>
+
+  @if (parsed(); as parsed) {
+    <div class="layout">
+      <aside class="stack">
+        <section class="card">
+          <h2>Profile</h2>
+          <dl>
+            @for (field of profile(); track field.label) {
+              <dt>{{ field.label }}</dt>
+              <dd>@if (field.link) { <a [href]="href(field.value)" target="_blank" rel="noopener">{{ field.value }}</a> } @else { {{ field.value }} }</dd>
+            } @empty {
+              <dd class="muted">No contact details were found.</dd>
+            }
+          </dl>
+        </section>
+        <section class="card">
+          <h2>Extracted information</h2>
+          <dl>
+            <dt>Experience</dt><dd>{{ parsed.yearsOfExperience || 'Not stated' }}</dd>
+            @if (resume.language) { <dt>Language of resume</dt><dd>{{ resume.language }}</dd> }
+            @if (parsed.languages.length) { <dt>Languages</dt><dd>{{ parsed.languages.join(', ') }}</dd> }
+            @if (parsed.companies.length) { <dt>Companies</dt><dd>{{ parsed.companies.join(', ') }}</dd> }
+            @if (parsed.designations.length) { <dt>Roles</dt><dd>{{ parsed.designations.join(', ') }}</dd> }
+          </dl>
+          @if (parsed.keywords.length) {
+            <h3>Keywords</h3>
+            <div class="tag-list">@for (item of parsed.keywords; track $index) { <span class="tag">{{ item }}</span> }</div>
+          }
+        </section>
+      </aside>
+
+      <div class="stack">
+        @if (parsed.summary) {
+          <section class="card"><h2>Summary</h2><p class="prewrap">{{ parsed.summary }}</p></section>
+        }
+        <section class="card">
+          <h2>Skills</h2>
+          @if (parsed.technicalSkills.length || parsed.skills.length) {
+            <h3>Technical</h3>
+            <div class="tag-list">
+              @for (item of (parsed.technicalSkills.length ? parsed.technicalSkills : parsed.skills); track $index) { <span class="tag">{{ item }}</span> }
+            </div>
+          }
+          @if (parsed.softSkills.length) {
+            <h3>Soft skills</h3>
+            <div class="tag-list">@for (item of parsed.softSkills; track $index) { <span class="tag">{{ item }}</span> }</div>
+          }
+          @if (!parsed.technicalSkills.length && !parsed.skills.length && !parsed.softSkills.length) { <p class="muted">No skills were found.</p> }
+        </section>
+        <section class="card">
+          <h2>Experience</h2>
+          @if (parsed.experience.length) { <app-experience-timeline [entries]="parsed.experience" /> } @else { <p class="muted">No work experience was found.</p> }
+        </section>
+        <section class="card">
+          <h2>Education</h2>
+          @for (entry of parsed.education; track $index) {
+            <div class="entry">
+              <b>{{ value(entry, 'degree') || value(entry, 'institution') || 'Education' }}</b>
+              @for (detail of details(entry, 'degree'); track detail.label) { <div class="subtle">{{ detail.label }}: {{ detail.value }}</div> }
+            </div>
+          } @empty { <p class="muted">No education was found.</p> }
+        </section>
+        <section class="card">
+          <h2>Projects</h2>
+          @for (entry of parsed.projects; track $index) {
+            <div class="entry">
+              <b>{{ value(entry, 'name', 'projectName', 'title') || 'Project' }}</b>
+              @if (value(entry, 'description')) { <p>{{ value(entry, 'description') }}</p> }
+              @for (detail of details(entry, 'name', 'projectName', 'title', 'description'); track detail.label) {
+                <div class="subtle">{{ detail.label }}: {{ detail.value }}</div>
+              }
+            </div>
+          } @empty { <p class="muted">No projects were found.</p> }
+        </section>
+        @if (parsed.certifications.length || parsed.achievements.length) {
+          <section class="card">
+            <h2>Certifications & achievements</h2>
+            <ul>
+              @for (item of parsed.certifications; track $index) { <li>{{ item }}</li> }
+              @for (item of parsed.achievements; track $index) { <li>{{ item }}</li> }
+            </ul>
+          </section>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="card empty-state">
+      <mat-icon>{{ resume.status === 'FAILED' ? 'error_outline' : 'hourglass_top' }}</mat-icon>
+      <h3>{{ resume.status === 'FAILED' ? 'This resume could not be analysed' : 'This resume is still being analysed' }}</h3>
+      <p>{{ resume.status === 'FAILED' ? 'Try uploading it again.' : 'Come back in a minute or two.' }}</p>
+    </div>
+  }
+}

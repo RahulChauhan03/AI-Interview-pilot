@@ -1,0 +1,77 @@
+<header class="page-header">
+  <div>
+    <h1>Job matches</h1>
+    <p>How well your resume fits each job, and what to work on.</p>
+  </div>
+</header>
+
+@if (loading()) {
+  <div class="card"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span></div>
+} @else if (failed()) {
+  <div class="card error-state">
+    <mat-icon>cloud_off</mat-icon>
+    <h3>Job matches could not be loaded</h3>
+    <button mat-stroked-button (click)="load()">Retry</button>
+  </div>
+} @else {
+  <section class="card">
+    <div class="card-header"><div><h2>New analysis</h2><p>Choose a resume and a job description.</p></div></div>
+    @if (!resumes().length || !jobs().length) {
+      <p class="muted">
+        @if (!resumes().length) { You need a processed resume — <a routerLink="/app/resumes">upload one</a>. }
+        @if (!jobs().length) { You need a job description — <a routerLink="/app/job-descriptions/new">add one</a>. }
+      </p>
+    } @else {
+      <form class="analysis" [formGroup]="form" (ngSubmit)="analyse()">
+        <mat-form-field appearance="outline">
+          <mat-label>Resume</mat-label>
+          <mat-select formControlName="resumeId">
+            @for (resume of resumes(); track resume.id) { <mat-option [value]="resume.id">{{ resume.originalFileName }}</mat-option> }
+          </mat-select>
+          <mat-error>Choose a resume</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Job description</mat-label>
+          <mat-select formControlName="jobDescriptionId">
+            @for (job of jobs(); track job.id) { <mat-option [value]="job.id">{{ job.jobTitle }} · {{ job.companyName }}</mat-option> }
+          </mat-select>
+          <mat-error>Choose a job description</mat-error>
+        </mat-form-field>
+        <button mat-flat-button type="submit" [disabled]="analysing()">{{ analysing() ? 'Analysing…' : 'Analyse match' }}</button>
+      </form>
+      @if (analysing()) {
+        <div class="inline-status"><mat-progress-bar mode="indeterminate"></mat-progress-bar>The AI is comparing your resume with the job. This can take up to a minute.</div>
+      }
+    }
+  </section>
+
+  <section class="card">
+    <div class="card-header"><h2>History</h2></div>
+    @if (!matches().length) {
+      <div class="empty-state">
+        <mat-icon>join_inner</mat-icon>
+        <h3>No matches yet</h3>
+        <p>Run your first analysis above to see your score, strengths and gaps.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Job</th><th class="hide-sm">Resume</th><th>Score</th><th class="hide-sm">Date</th></tr></thead>
+          <tbody>
+            @for (match of matches(); track match.id) {
+              <tr>
+                <td><a class="cell-title" [routerLink]="['/app/matches', match.id]">{{ match.jobTitle }}</a><div class="subtle">{{ match.companyName }}</div></td>
+                <td class="hide-sm">{{ match.resumeFileName }}</td>
+                <td>
+                  <span class="pill" [class.success]="matchLabel(match.matchScore).tone === 'good'" [class.warning]="matchLabel(match.matchScore).tone === 'fair'"
+                    [class.danger]="matchLabel(match.matchScore).tone === 'low'">{{ match.matchScore | number: '1.0-0' }}% · {{ matchLabel(match.matchScore).label }}</span>
+                </td>
+                <td class="hide-sm">{{ match.createdAt | date: 'MMM d, y' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

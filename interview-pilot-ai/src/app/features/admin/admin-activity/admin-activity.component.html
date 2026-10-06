@@ -1,0 +1,43 @@
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Admin console</p>
+    <h1>Activity</h1>
+    <p>Recent sign-ups, resume processing, matches and interviews. No resume content, answers or prompts are shown.</p>
+  </div>
+  <button mat-stroked-button (click)="load()" [disabled]="loading()"><mat-icon>refresh</mat-icon>Refresh</button>
+</header>
+
+<section class="card">
+  <mat-button-toggle-group class="toolbar" [value]="filter()" (change)="filter.set($event.value)" aria-label="Filter by type" hideSingleSelectionIndicator>
+    @for (option of filters; track option) { <mat-button-toggle [value]="option">{{ option === 'ALL' ? 'All' : option.charAt(0) + option.slice(1).toLowerCase() }}</mat-button-toggle> }
+  </mat-button-toggle-group>
+
+  @if (loading()) {
+    <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
+  } @else if (failed()) {
+    <div class="error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <h3>Activity could not be loaded</h3>
+      <button mat-stroked-button (click)="load()">Retry</button>
+    </div>
+  } @else if (!visible().length) {
+    <div class="empty-state"><mat-icon>history</mat-icon><h3>No activity</h3></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Time</th><th>Event</th><th class="hide-sm">User</th><th>Status</th><th class="hide-sm">Duration</th></tr></thead>
+        <tbody>
+          @for (event of visible(); track $index) {
+            <tr>
+              <td class="subtle">{{ event.time | date: 'MMM d, h:mm a' }}</td>
+              <td><span class="pill">{{ event.type }}</span> {{ event.description }}</td>
+              <td class="hide-sm">{{ event.userEmail }}</td>
+              <td><span class="pill" [class.success]="event.status === 'PARSED' || event.status === 'COMPLETED'" [class.danger]="event.status === 'FAILED'">{{ event.status }}</span></td>
+              <td class="hide-sm">{{ event.durationMs === null ? '–' : (event.durationMs / 1000 | number: '1.0-1') + ' s' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

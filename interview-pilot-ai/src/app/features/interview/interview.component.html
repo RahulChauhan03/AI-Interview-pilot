@@ -1,54 +1,99 @@
-<div class="heading">
+<header class="page-header">
   <div>
-    <p class="eyebrow">PRACTICE STUDIO</p>
     <h1>Interviews</h1>
-    <p>Practice the conversations that move your career forward.</p>
+    <p>AI-generated interviews for your target jobs, with feedback on every answer.</p>
   </div>
-</div>
-<section class="start">
-  <div>
-    <span class="spark"><mat-icon>auto_awesome</mat-icon> AI-POWERED PRACTICE</span>
-    <h2>Start a focused<br />practice interview.</h2>
-    <p>
-      Use your resume and a saved job description to generate a structured, role-specific interview
-      session.
-    </p>
-    <button mat-flat-button>Start new interview <mat-icon>arrow_forward</mat-icon></button>
+  @if (!showSetup()) {
+    <button mat-flat-button (click)="showSetup.set(true)"><mat-icon>add</mat-icon>New interview</button>
+  }
+</header>
+
+@if (loading()) {
+  <div class="card"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span></div>
+} @else if (failed()) {
+  <div class="card error-state">
+    <mat-icon>cloud_off</mat-icon>
+    <h3>Interviews could not be loaded</h3>
+    <button mat-stroked-button (click)="load()">Retry</button>
   </div>
-  <div class="illustration"><mat-icon>forum</mat-icon><i></i><b></b></div>
-</section>
-<div class="stats">
-  <div>
-    <span>3</span>
-    <p>Practice sessions</p>
-  </div>
-  <div>
-    <span>78%</span>
-    <p>Average score</p>
-  </div>
-  <div>
-    <span>2</span>
-    <p>Roles prepared</p>
-  </div>
-</div>
-<section class="history">
-  <div class="history-title">
-    <div>
-      <h2>Previous interviews</h2>
-      <p>Review your completed practice sessions.</p>
-    </div>
-    <button mat-button>View all</button>
-  </div>
-  <article *ngFor="let item of sessions">
-    <div class="circle">
-      <span>{{ item.score }}</span
-      ><small>/100</small>
-    </div>
-    <div>
-      <b>{{ item.role }}</b>
-      <p>{{ item.company }} · {{ item.date }}</p>
-    </div>
-    <span class="complete"><mat-icon>check_circle</mat-icon> Completed</span
-    ><button mat-icon-button><mat-icon>arrow_forward</mat-icon></button>
-  </article>
-</section>
+} @else {
+  @if (showSetup()) {
+    <section class="card">
+      <div class="card-header"><div><h2>New interview</h2><p>Questions are written for your resume and the selected job.</p></div></div>
+      @if (!resumes().length || !jobs().length) {
+        <p class="muted">
+          @if (!resumes().length) { You need a processed resume — <a routerLink="/app/resumes">upload one</a>. }
+          @if (!jobs().length) { You need a job description — <a routerLink="/app/job-descriptions/new">add one</a>. }
+        </p>
+      } @else {
+        <form class="setup" [formGroup]="setupForm" (ngSubmit)="start()">
+          <mat-form-field appearance="outline">
+            <mat-label>Resume</mat-label>
+            <mat-select formControlName="resumeId">
+              @for (resume of resumes(); track resume.id) { <mat-option [value]="resume.id">{{ resume.originalFileName }}</mat-option> }
+            </mat-select>
+            <mat-error>Choose a resume</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Job description</mat-label>
+            <mat-select formControlName="jobDescriptionId">
+              @for (job of jobs(); track job.id) { <mat-option [value]="job.id">{{ job.jobTitle }} · {{ job.companyName }}</mat-option> }
+            </mat-select>
+            <mat-error>Choose a job description</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="count">
+            <mat-label>Questions</mat-label>
+            <mat-select formControlName="questionCount">
+              @for (count of questionCounts; track count) { <mat-option [value]="count">{{ count }}</mat-option> }
+            </mat-select>
+          </mat-form-field>
+          <div class="form-actions">
+            <button mat-button type="button" [disabled]="creating()" (click)="showSetup.set(false)">Cancel</button>
+            <button mat-flat-button type="submit" [disabled]="creating()">{{ creating() ? 'Generating…' : 'Generate interview' }}</button>
+          </div>
+        </form>
+        @if (creating()) {
+          <div class="inline-status"><mat-progress-bar mode="indeterminate"></mat-progress-bar>The AI is writing your questions. This can take up to a minute.</div>
+        }
+      }
+    </section>
+  }
+
+  <section class="card">
+    @if (!interviews().length) {
+      <div class="empty-state">
+        <mat-icon>forum</mat-icon>
+        <h3>No interviews yet</h3>
+        <p>Start your first AI interview to practise for a job and get feedback on your answers.</p>
+        @if (!showSetup()) { <button mat-flat-button (click)="showSetup.set(true)">Start your first AI interview</button> }
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Job</th><th class="hide-sm">Date</th><th>Status</th><th>Score</th><th class="hide-sm">Progress</th><th></th></tr></thead>
+          <tbody>
+            @for (interview of interviews(); track interview.id) {
+              <tr>
+                <td><a class="cell-title" [routerLink]="link(interview)">{{ interview.jobTitle || 'Interview' }}</a><div class="subtle">{{ interview.companyName }}</div></td>
+                <td class="hide-sm">{{ interview.startedAt | date: 'MMM d, y' }}</td>
+                <td>
+                  @if (interview.status === 'COMPLETED') { <span class="pill success">Completed</span> } @else { <span class="pill info">In progress</span> }
+                </td>
+                <td>{{ interview.overallScore === null ? '–' : (interview.overallScore | number: '1.0-0') + '/100' }}</td>
+                <td class="hide-sm">
+                  <div class="progress" [attr.aria-label]="interview.answeredQuestions + ' of ' + interview.totalQuestions + ' answered'">
+                    <i [style.width.%]="interview.totalQuestions ? (interview.answeredQuestions / interview.totalQuestions) * 100 : 0"></i>
+                  </div>
+                  <span class="subtle">{{ interview.answeredQuestions }}/{{ interview.totalQuestions }}</span>
+                </td>
+                <td class="cell-actions">
+                  <a mat-stroked-button [routerLink]="link(interview)">{{ interview.status === 'COMPLETED' ? 'Results' : 'Continue' }}</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}

@@ -1,0 +1,68 @@
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Admin console</p>
+    <h1>System overview</h1>
+    <p>Platform usage and the health of the services the application depends on.</p>
+  </div>
+</header>
+
+@if (statsFailed()) {
+  <div class="card error-state">
+    <mat-icon>cloud_off</mat-icon>
+    <h3>Statistics could not be loaded</h3>
+    <button mat-stroked-button (click)="loadStats()">Retry</button>
+  </div>
+} @else {
+  <section class="stat-grid" aria-label="Statistics">
+    @if (stats(); as s) {
+      <div class="stat"><div class="stat-label">Users</div><div class="stat-value">{{ s.users }}</div><div class="stat-hint">{{ s.admins }} admin{{ s.admins === 1 ? '' : 's' }}</div></div>
+      <div class="stat"><div class="stat-label">Resumes</div><div class="stat-value">{{ s.resumes }}</div>
+        <div class="stat-hint">{{ s.resumesParsed }} parsed · {{ s.resumesInProgress }} in progress · {{ s.resumesFailed }} failed</div></div>
+      <div class="stat"><div class="stat-label">Job descriptions</div><div class="stat-value">{{ s.jobDescriptions }}</div><div class="stat-hint">{{ s.matches }} {{ s.matches === 1 ? 'match' : 'matches' }}</div></div>
+      <div class="stat"><div class="stat-label">Interviews</div><div class="stat-value">{{ s.interviews }}</div><div class="stat-hint">{{ s.interviewsCompleted }} completed · {{ s.answers }} answers</div></div>
+    } @else {
+      @for (i of [1, 2, 3, 4]; track i) { <div class="stat"><span class="skeleton short"></span><span class="skeleton tall"></span></div> }
+    }
+  </section>
+}
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-header">
+      <h2>System status</h2>
+      <button mat-stroked-button (click)="checkSystem()" [disabled]="checkingSystem()">{{ checkingSystem() ? 'Checking…' : 'Refresh' }}</button>
+    </div>
+    @if (system(); as components) {
+      @for (component of components; track component.name) {
+        <div class="status-row">
+          <span class="dot" [class.up]="component.status === 'UP'" aria-hidden="true"></span>
+          <div><b>{{ component.name }}</b><div class="subtle">{{ component.detail }}</div></div>
+          <span class="pill" [class.success]="component.status === 'UP'" [class.danger]="component.status === 'DOWN'">{{ component.status === 'UP' ? 'Operational' : 'Unavailable' }}</span>
+        </div>
+      } @empty {
+        <p class="muted">System status is not available right now.</p>
+      }
+    } @else {
+      <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span>
+    }
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Recent activity</h2>
+      <a mat-button routerLink="/admin/activity">View all</a>
+    </div>
+    @if (activity(); as events) {
+      @for (event of events; track $index) {
+        <div class="status-row">
+          <span class="pill" [class.danger]="event.status === 'FAILED'">{{ event.type }}</span>
+          <div><span>{{ event.description }}</span><div class="subtle">{{ event.userEmail }} · {{ event.time | date: 'MMM d, h:mm a' }}</div></div>
+        </div>
+      } @empty {
+        <p class="muted">No activity yet.</p>
+      }
+    } @else {
+      <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span>
+    }
+  </section>
+</div>

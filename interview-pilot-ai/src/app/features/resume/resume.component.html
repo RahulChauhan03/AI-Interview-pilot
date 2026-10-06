@@ -1,46 +1,86 @@
-<div class="page-heading">
+<header class="page-header">
   <div>
-    <p class="eyebrow">RESUME LIBRARY</p>
-    <h1>My resumes</h1>
-    <p>Keep the versions you use for each opportunity in one place.</p>
+    <h1>Resumes</h1>
+    <p>Upload your resume once; it is analysed by AI and used for job matching and interviews.</p>
   </div>
-</div>
-<section class="upload" [class.dragging]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
-  (drop)="onDrop($event)">
-  <div class="upload-icon"><mat-icon>upload_file</mat-icon></div>
-  <h2>{{ uploading ? uploadMessage : 'Upload a resume' }}</h2>
-  <p *ngIf="!selectedFile">Drag and drop your PDF, DOC, or DOCX here, or choose a file from your computer.</p>
-  <p class="selected-file" *ngIf="selectedFile"><mat-icon>description</mat-icon>{{ selectedFile.name }} · {{
-    mapper.formatFileSize(selectedFile.size) }}</p>
+</header>
+
+<section class="card upload" [class.dragging]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+  aria-label="Upload a resume">
+  <mat-icon class="upload-icon" aria-hidden="true">upload_file</mat-icon>
+  <div class="upload-text">
+    <h2>{{ uploading ? uploadMessage : 'Upload your resume' }}</h2>
+    @if (selectedFile) {
+      <p><b>{{ selectedFile.name }}</b> · {{ mapper.formatFileSize(selectedFile.size) }}</p>
+    } @else {
+      <p class="muted">Drag and drop a file here, or browse. PDF, DOC or DOCX up to 10 MB.</p>
+    }
+  </div>
   <input #fileInput type="file" hidden accept=".pdf,.doc,.docx" (change)="onFileSelected($event)" />
-  <div class="upload-actions"><button mat-stroked-button (click)="fileInput.click()"
-      [disabled]="uploading"><mat-icon>attach_file</mat-icon>Browse files</button>
-    <button mat-flat-button color="primary upload-text" *ngIf="selectedFile" (click)="upload()"
-      [disabled]="uploading">{{ uploading ? 'Uploading…' :
-      'Upload resume' }}</button>
+  <div class="page-actions">
+    <button mat-stroked-button (click)="fileInput.click()" [disabled]="uploading"><mat-icon>attach_file</mat-icon>Browse</button>
+    @if (selectedFile) {
+      <button mat-flat-button (click)="upload()" [disabled]="uploading">{{ uploading ? 'Uploading…' : 'Upload resume' }}</button>
+    }
   </div>
-  <mat-progress-bar *ngIf="uploading" mode="determinate" [value]="uploadProgress"></mat-progress-bar>
-  <small>PDF, DOC, or DOCX • Maximum file size 10 MB</small>
+  @if (uploading) {
+    <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+  }
 </section>
-<section class="list-header">
-  <div>
-    <h2>Uploaded resumes</h2>
-    <p>{{ (resumes$ | async)?.length ?? 0 }} files in your library</p>
-  </div>
-</section>
-<section class="table">
-  <div class="row table-head"><span>RESUME</span><span>UPLOADED</span><span>STATUS</span><span></span></div>
-  <ng-container *ngIf="resumes$ | async as resumes">
-    <div class="empty" *ngIf="!resumes.length">No resumes uploaded yet.</div>
-    <div class="row" *ngFor="let resume of resumes">
-      <div class="resume-name">
-        <div><mat-icon>description</mat-icon></div><span><b>{{ resume.originalFileName }}</b><small>{{ resume.summary ||
-            'AI summary will appear after processing.' }}</small></span>
-      </div><span>{{ resume.uploadTime | date:'mediumDate' }}</span><span class="status"
-        [class]="'status ' + resume.status.toLowerCase()">{{ mapper.statusLabel(resume.status) }}</span><span
-        class="row-actions"><button mat-icon-button aria-label="View resume"
-          (click)="view(resume)"><mat-icon>visibility</mat-icon></button><button mat-icon-button
-          aria-label="Delete resume" (click)="delete(resume)"><mat-icon>delete_outline</mat-icon></button></span>
+
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h2>Your resumes</h2>
+      <p>Processing usually takes a minute or two; this list updates on its own.</p>
     </div>
-  </ng-container>
+  </div>
+  @if (!loaded()) {
+    <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
+  } @else if (loadError()) {
+    <div class="error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <h3>Your resumes could not be loaded</h3>
+      <button mat-stroked-button (click)="reload()">Retry</button>
+    </div>
+  } @else if (resumes$ | async; as resumes) {
+    @if (!resumes.length) {
+      <div class="empty-state">
+        <mat-icon>description</mat-icon>
+        <h3>No resumes yet</h3>
+        <p>Upload your resume above to get started.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>File</th><th class="hide-sm">Uploaded</th><th>Status</th><th><span class="hide-sm">Actions</span></th></tr>
+          </thead>
+          <tbody>
+            @for (resume of resumes; track resume.id) {
+              <tr>
+                <td>
+                  <div class="cell-title">{{ resume.originalFileName }}</div>
+                  @if (resume.summary) { <div class="subtle summary">{{ resume.summary }}</div> }
+                </td>
+                <td class="hide-sm">{{ resume.uploadTime | date: 'MMM d, y' }}</td>
+                <td>
+                  <span class="pill" [class.success]="resume.status === 'PARSED'" [class.danger]="resume.status === 'FAILED'"
+                    [class.info]="resume.status === 'PROCESSING' || resume.status === 'UPLOADED'">
+                    @if (resume.status === 'PROCESSING' || resume.status === 'UPLOADED') { <mat-spinner diameter="12"></mat-spinner> }
+                    {{ statusLabel(resume.status) }}
+                  </span>
+                </td>
+                <td class="cell-actions">
+                  <button mat-icon-button [disabled]="resume.status !== 'PARSED'" [attr.aria-label]="'View ' + resume.originalFileName"
+                    (click)="view(resume)"><mat-icon>visibility</mat-icon></button>
+                  <button mat-icon-button [attr.aria-label]="'Delete ' + resume.originalFileName" (click)="delete(resume)"><mat-icon>delete_outline</mat-icon></button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
 </section>

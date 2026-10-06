@@ -7,6 +7,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 
 const strongPassword = (c: AbstractControl) =>
@@ -35,6 +36,7 @@ export class AuthComponent {
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly route = inject(ActivatedRoute);
+  private readonly notifications = inject(NotificationService);
   readonly mode = this.route.snapshot.data['mode'] ?? 'login';
   readonly isLogin = this.mode === 'login';
   readonly isForgotPassword = this.mode === 'forgot-password';
@@ -83,7 +85,7 @@ export class AuthComponent {
     };
 
     this.auth.login(request).subscribe({
-      next: () => this.router.navigateByUrl('/dashboard'),
+      next: () => this.router.navigateByUrl(this.auth.homeUrl()),
       error: (error: unknown) => this.handleAuthError(error),
     });
   }
@@ -116,7 +118,10 @@ export class AuthComponent {
     };
 
     this.auth.register(request).subscribe({
-      next: () => this.router.navigateByUrl('/dashboard'),
+      next: () => {
+        this.notifications.success('Account created. Please sign in.');
+        this.router.navigateByUrl('/login');
+      },
       error: (error: unknown) => this.handleAuthError(error),
     });
   }

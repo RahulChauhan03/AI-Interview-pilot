@@ -1,31 +1,61 @@
-<mat-sidenav-container class="shell"
-  ><mat-sidenav #drawer [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile()" class="sidebar">
-    <a class="brand" routerLink="/dashboard"
-      ><span class="brand-mark">IP</span><span>Interview Pilot <b>AI</b></span></a
-    >
-    <div class="workspace">WORKSPACE</div>
-    <nav>
-      <a
-        *ngFor="let item of nav"
-        [routerLink]="item.link"
-        routerLinkActive="active"
-        (click)="mobile() && drawer.close()"
-        ><mat-icon>{{ item.icon }}</mat-icon
-        >{{ item.label }}</a
-      >
+<a class="skip-link" href="#main-content">Skip to content</a>
+<mat-sidenav-container class="shell">
+  <mat-sidenav #drawer [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile()" class="sidebar">
+    <a class="brand" [routerLink]="nav[0].link" (click)="mobile() && drawer.close()">
+      <span class="brand-mark" aria-hidden="true">IP</span>
+      <span>Interview Pilot</span>
+      @if (isAdminArea) {
+        <span class="area-badge">Admin</span>
+      }
+    </a>
+    <nav aria-label="Main">
+      @for (item of nav; track item.link) {
+        <a [routerLink]="item.link" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="mobile() && drawer.close()">
+          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>{{ item.label }}
+        </a>
+      }
+      <p class="nav-section">Account</p>
+      @for (item of accountNav; track item.link) {
+        <a [routerLink]="item.link" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="mobile() && drawer.close()">
+          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>{{ item.label }}
+        </a>
+      }
     </nav>
-    <button class="logout" mat-button (click)="logout()">
-      <mat-icon>logout</mat-icon>Log out
-    </button> </mat-sidenav
-  ><mat-sidenav-content
-    ><mat-toolbar
-      ><button mat-icon-button class="menu" (click)="drawer.toggle()">
-        <mat-icon>menu</mat-icon></button
-      ><span class="crumb">Interview preparation workspace</span><span class="spacer"></span
-      ><button mat-icon-button aria-label="Notifications">
-        <mat-icon>notifications_none</mat-icon>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <header class="topbar">
+      @if (mobile()) {
+        <button mat-icon-button aria-label="Open navigation" (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+      }
+      <span class="spacer"></span>
+      <button class="account-button" [matMenuTriggerFor]="accountMenu" aria-label="Account menu">
+        <span class="avatar" aria-hidden="true">{{ auth.initials() }}</span>
+        <span class="account-name">{{ auth.displayName() }}</span>
+        <mat-icon aria-hidden="true">expand_more</mat-icon>
       </button>
-      <div class="avatar">AS</div></mat-toolbar
-    >
-    <main class="page"><router-outlet /></main></mat-sidenav-content
-></mat-sidenav-container>
+      <mat-menu #accountMenu="matMenu" xPosition="before" class="account-menu">
+        <div class="menu-header">
+          <b>{{ auth.displayName() }}</b>
+          <span>{{ email() }}</span>
+        </div>
+        <mat-divider></mat-divider>
+        <a mat-menu-item [routerLink]="profileLink"><mat-icon>person_outline</mat-icon>Profile</a>
+        <a mat-menu-item [routerLink]="settingsLink"><mat-icon>settings</mat-icon>Settings</a>
+        <button mat-menu-item (click)="theme.toggle(); $event.stopPropagation()" [attr.aria-pressed]="theme.isDark()">
+          <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>{{ theme.isDark() ? 'Light mode' : 'Dark mode' }}
+        </button>
+        @if (auth.isAdmin()) {
+          <a mat-menu-item [routerLink]="isAdminArea ? '/app/dashboard' : '/admin/dashboard'">
+            <mat-icon>{{ isAdminArea ? 'person' : 'admin_panel_settings' }}</mat-icon>{{ isAdminArea ? 'Candidate app' : 'Admin console' }}
+          </a>
+        }
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon>Log out</button>
+      </mat-menu>
+    </header>
+    <main id="main-content" class="content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

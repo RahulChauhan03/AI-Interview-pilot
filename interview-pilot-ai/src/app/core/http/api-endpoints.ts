@@ -14,6 +14,18 @@ export const API_ENDPOINTS = {
     PARSED: 'resumes',
     DELETE: 'resumes',
   },
+  JOB_DESCRIPTIONS: 'job-descriptions',
+  INTERVIEWS: 'interviews',
+  MATCHES: 'matches',
+  APPLICATIONS: 'applications',
+  SKILL_GAPS: 'skill-gaps',
+  MY_PROFILE: 'users/me',
+  ADMIN: {
+    STATS: 'admin/stats',
+    USERS: 'admin/users',
+    ACTIVITY: 'admin/activity',
+    SYSTEM: 'admin/system',
+  },
   INTERVIEW: {
     START: '/interview/start',
     HISTORY: '/interview/history',

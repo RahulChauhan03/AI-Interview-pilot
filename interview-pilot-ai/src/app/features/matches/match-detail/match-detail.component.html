@@ -1,0 +1,55 @@
+<a class="back-link" routerLink="/app/matches"><mat-icon>arrow_back</mat-icon>Job matches</a>
+
+@if (loading()) {
+  <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span></div>
+} @else if (failed()) {
+  <div class="card error-state">
+    <mat-icon>error_outline</mat-icon>
+    <h3>This match could not be loaded</h3>
+    <button mat-stroked-button (click)="load()">Retry</button>
+  </div>
+} @else if (match(); as match) {
+  <header class="page-header">
+    <div>
+      <h1>{{ match.jobTitle }} · {{ match.companyName }}</h1>
+      <p>{{ match.resumeFileName }} · analysed {{ match.createdAt | date: 'MMM d, y, h:mm a' }}</p>
+    </div>
+    <div class="page-actions">
+      <a mat-stroked-button [routerLink]="['/app/job-descriptions', match.jobDescriptionId]">View job</a>
+      <a mat-flat-button routerLink="/app/interviews" [queryParams]="{ resumeId: match.resumeId, jobDescriptionId: match.jobDescriptionId }">
+        <mat-icon>forum</mat-icon>Practise for this job</a>
+    </div>
+  </header>
+
+  <section class="card verdict">
+    <div [class]="'score-ring large ' + verdict().tone" [style.--value]="match.matchScore">
+      <span>{{ match.matchScore | number: '1.0-0' }}%</span>
+    </div>
+    <div>
+      <h2>{{ verdict().label }}</h2>
+      <p class="muted">The AI's estimate of how well this resume covers the job's requirements (75+ strong, 50–74 partial, below 50 weak).</p>
+    </div>
+  </section>
+
+  <div class="grid-2">
+    <section class="card">
+      <h2><mat-icon aria-hidden="true">check_circle</mat-icon>Requirements you meet</h2>
+      @if (match.strengths.length) {
+        <div class="tag-list">@for (item of match.strengths; track $index) { <span class="tag">{{ item }}</span> }</div>
+      } @else { <p class="muted">None identified.</p> }
+    </section>
+    <section class="card">
+      <h2><mat-icon aria-hidden="true">error_outline</mat-icon>Gaps</h2>
+      @if (match.missingSkills.length) {
+        <div class="tag-list">@for (item of match.missingSkills; track $index) { <span class="tag danger">{{ item }}</span> }</div>
+      } @else { <p class="muted">No missing skills identified.</p> }
+    </section>
+  </div>
+
+  <section class="card">
+    <h2><mat-icon aria-hidden="true">lightbulb</mat-icon>Recommendations</h2>
+    @if (match.recommendations.length) {
+      <ul>@for (item of match.recommendations; track $index) { <li>{{ item }}</li> }</ul>
+    } @else { <p class="muted">No recommendations.</p> }
+  </section>
+}

@@ -23,11 +23,11 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authenticationException) throws IOException {
-        writeError(response, HttpStatus.UNAUTHORIZED, "Authentication is required", "UNAUTHORIZED");
+        writeError(request, response, HttpStatus.UNAUTHORIZED, "Authentication is required", "UNAUTHORIZED");
     }
 
-    private void writeError(HttpServletResponse response, HttpStatus status, String message, String error)
-            throws IOException {
+    private void writeError(HttpServletRequest request, HttpServletResponse response, HttpStatus status,
+                            String message, String error) throws IOException {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         ApiResponse<ErrorResponseDto> body = ApiResponse.<ErrorResponseDto>builder()
@@ -35,6 +35,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
                 .message(message)
                 .timestamp(LocalDateTime.now())
                 .data(ErrorResponseDto.builder().error(error).build())
+                .path(request.getRequestURI())
                 .build();
         objectMapper.writeValue(response.getOutputStream(), body);
     }

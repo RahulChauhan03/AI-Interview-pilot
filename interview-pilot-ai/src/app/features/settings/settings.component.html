@@ -1,0 +1,27 @@
+<header class="page-header">
+  <div>
+    <h1>Settings</h1>
+    <p>Appearance and account.</p>
+  </div>
+</header>
+
+<section class="card">
+  <div class="card-header"><div><h2>Appearance</h2><p>System follows your device's light or dark setting. Saved on this browser.</p></div></div>
+  <mat-button-toggle-group [value]="theme.mode()" (change)="theme.setMode($event.value)" aria-label="Theme" hideSingleSelectionIndicator>
+    @for (mode of modes; track mode.value) {
+      <mat-button-toggle [value]="mode.value"><mat-icon aria-hidden="true">{{ mode.icon }}</mat-icon>{{ mode.label }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+</section>
+
+<section class="card">
+  <div class="card-header"><div><h2>Account</h2><p>Signed in as {{ auth.currentUser()?.email }}.</p></div></div>
+  <div class="setting">
+    <div><b>Profile information</b><p class="muted">Your name and account details.</p></div>
+    <a mat-stroked-button [routerLink]="profileLink">Edit profile</a>
+  </div>
+  <div class="setting">
+    <div><b>Password</b><p class="muted">We email you a secure, one-time link to set a new password.</p></div>
+    <button mat-stroked-button (click)="sendPasswordReset()" [disabled]="sendingReset()">{{ sendingReset() ? 'Sending…' : 'Send reset link' }}</button>
+  </div>
+</section>

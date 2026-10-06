@@ -1,53 +1,57 @@
-<div class="page-heading">
-  <p class="eyebrow">ROLE CONTEXT</p>
-  <h1>Job descriptions</h1>
-  <p>Save the roles you are targeting to make every practice session relevant.</p>
-</div>
-<section class="editor">
-  <div class="section-title">
-    <div>
-      <h2>Add a job description</h2>
-      <p>Paste the full posting and we will keep it ready for your preparation.</p>
-    </div>
+<header class="page-header">
+  <div>
+    <h1>Job descriptions</h1>
+    <p>The roles you are targeting. Match your resume against them and practise interviews for them.</p>
   </div>
-  <form [formGroup]="form" (ngSubmit)="save()">
-    <div class="twocol">
-      <mat-form-field appearance="outline"
-        ><mat-label>Company name</mat-label
-        ><input matInput formControlName="company" placeholder="e.g. Acme Inc." /></mat-form-field
-      ><mat-form-field appearance="outline"
-        ><mat-label>Role title</mat-label
-        ><input matInput formControlName="role" placeholder="e.g. Senior Product Designer"
-      /></mat-form-field>
+  <a mat-flat-button routerLink="/app/job-descriptions/new"><mat-icon>add</mat-icon>New job description</a>
+</header>
+
+<section class="card">
+  @if (loading()) {
+    <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
+  } @else if (failed()) {
+    <div class="error-state">
+      <mat-icon>cloud_off</mat-icon>
+      <h3>Job descriptions could not be loaded</h3>
+      <button mat-stroked-button (click)="load()">Retry</button>
     </div>
-    <mat-form-field appearance="outline"
-      ><mat-label>Paste job description</mat-label
-      ><textarea
-        matInput
-        rows="7"
-        formControlName="description"
-        placeholder="Paste the job description, responsibilities and requirements here..."
-      ></textarea>
-    </mat-form-field>
-    <div class="save">
-      <span>All information is stored securely in your workspace.</span
-      ><button mat-flat-button type="submit"><mat-icon>add</mat-icon> Save job description</button>
+  } @else if (!jobs().length) {
+    <div class="empty-state">
+      <mat-icon>work_outline</mat-icon>
+      <h3>No job descriptions yet</h3>
+      <p>Paste a job posting to see how well your resume matches and to practise for that interview.</p>
+      <a mat-flat-button routerLink="/app/job-descriptions/new">Add your first job description</a>
     </div>
-  </form>
-</section>
-<section class="previous">
-  <div class="section-title">
-    <div>
-      <h2>Saved job descriptions</h2>
-      <p>Your recently added target roles</p>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Role</th><th>Company</th><th class="hide-sm">Added</th><th>Latest match</th><th><span class="hide-sm">Actions</span></th></tr>
+        </thead>
+        <tbody>
+          @for (job of jobs(); track job.id) {
+            <tr>
+              <td><a class="cell-title" [routerLink]="['/app/job-descriptions', job.id]">{{ job.jobTitle }}</a></td>
+              <td>{{ job.companyName }}</td>
+              <td class="hide-sm">{{ job.createdAt | date: 'MMM d, y' }}</td>
+              <td>
+                @if (latestMatch().get(job.id); as match) {
+                  <a class="pill" [routerLink]="['/app/matches', match.id]" [class.success]="matchLabel(match.matchScore).tone === 'good'"
+                    [class.warning]="matchLabel(match.matchScore).tone === 'fair'" [class.danger]="matchLabel(match.matchScore).tone === 'low'">
+                    {{ match.matchScore | number: '1.0-0' }}% · {{ matchLabel(match.matchScore).label }}</a>
+                } @else {
+                  <span class="pill">Not analysed</span>
+                }
+              </td>
+              <td class="cell-actions">
+                <a mat-icon-button [routerLink]="['/app/job-descriptions', job.id]" matTooltip="Open and match" [attr.aria-label]="'Open ' + job.jobTitle"><mat-icon>insights</mat-icon></a>
+                <a mat-icon-button [routerLink]="['/app/job-descriptions', job.id, 'edit']" matTooltip="Edit" [attr.aria-label]="'Edit ' + job.jobTitle"><mat-icon>edit</mat-icon></a>
+                <button mat-icon-button matTooltip="Delete" [attr.aria-label]="'Delete ' + job.jobTitle" [disabled]="deletingId() === job.id" (click)="remove(job)"><mat-icon>delete_outline</mat-icon></button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
-  </div>
-  <div class="job" *ngFor="let job of jobs">
-    <div class="job-icon"><mat-icon>business_center</mat-icon></div>
-    <div>
-      <b>{{ job.role }}</b>
-      <p>{{ job.company }} · Added {{ job.date }}</p>
-    </div>
-    <span class="tag">Ready</span><button mat-icon-button><mat-icon>more_horiz</mat-icon></button>
-  </div>
+  }
 </section>

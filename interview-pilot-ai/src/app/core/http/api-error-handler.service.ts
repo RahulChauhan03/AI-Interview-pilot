@@ -7,7 +7,11 @@ import { NotificationService } from '../services/notification.service';
 export class ApiErrorHandlerService {
   private readonly notificationService = inject(NotificationService);
 
-  handle(error: HttpErrorResponse): Observable<never> {
+  handle(error: HttpErrorResponse | Error): Observable<never> {
+    // The HTTP error interceptor has already notified the user and turned the response into an Error.
+    if (!(error instanceof HttpErrorResponse)) {
+      return throwError(() => error);
+    }
     const message = this.resolveMessage(error.status);
     this.notificationService.error(message);
     return throwError(() => new Error(message));

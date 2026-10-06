@@ -1,62 +1,112 @@
-<div class="heading">
+<header class="page-header">
   <div>
-    <p class="eyebrow">OVERVIEW</p>
-    <h1>Good morning, {{ displayName }}</h1>
-    <p>Here is a clear view of your preparation progress for {{ roleLabel }}.</p>
+    <h1>{{ greeting() }} 👋</h1>
+    <p>Here is where your interview preparation stands.</p>
   </div>
-  <button mat-flat-button routerLink="/interviews">
-    Start interview <mat-icon>arrow_forward</mat-icon>
-  </button>
-</div>
-<section class="welcome">
-  <div>
-    <span class="badge"><mat-icon>auto_awesome</mat-icon> PREP SMARTER</span>
-    <h2>Ready for your next<br />great conversation?</h2>
-    <p>Build confidence with a resume, targeted job context, and structured interview practice.</p>
-    <button mat-button routerLink="/resumes">
-      Upload a resume <mat-icon>arrow_forward</mat-icon>
-    </button>
+  <div class="page-actions">
+    <a mat-stroked-button routerLink="/app/resumes"><mat-icon>upload_file</mat-icon>Upload resume</a>
+    <a mat-stroked-button routerLink="/app/job-descriptions/new"><mat-icon>add</mat-icon>Add job description</a>
+    <a mat-stroked-button routerLink="/app/matches"><mat-icon>join_inner</mat-icon>Match resume</a>
+    <a mat-flat-button routerLink="/app/interviews"><mat-icon>forum</mat-icon>Start interview</a>
   </div>
-  <div class="orb">✦</div>
-</section>
-<h3>Quick actions</h3>
-<section class="actions">
-  <a *ngFor="let action of actions" [routerLink]="action.link"
-    ><div [class]="'icon ' + action.color">
-      <mat-icon>{{ action.icon }}</mat-icon>
-    </div>
-    <div>
-      <b>{{ action.title }}</b
-      ><span>{{ action.copy }}</span>
-    </div>
-    <mat-icon class="arrow">arrow_forward</mat-icon></a
-  >
-</section>
-<section class="bottom-grid">
-  <div class="panel">
-    <div class="panel-title">
+</header>
+
+@if (failed()) {
+  <div class="card error-state">
+    <mat-icon>cloud_off</mat-icon>
+    <h3>Your dashboard could not be loaded</h3>
+    <p>Check that the server is running, then try again.</p>
+    <button mat-stroked-button (click)="load()">Retry</button>
+  </div>
+} @else {
+  <section class="stat-grid" aria-label="Summary">
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="stat"><span class="skeleton short"></span><span class="skeleton tall"></span></div>
+      }
+    } @else {
+      <div class="stat">
+        <div class="stat-label">Resumes</div>
+        <div class="stat-value">{{ resumes().length }}</div>
+        <div class="stat-hint">{{ parsedResumes() }} ready to use</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Job matches</div>
+        <div class="stat-value">{{ matches().length }}</div>
+        <div class="stat-hint">{{ bestMatch() === null ? 'No matches yet' : 'Best ' + (bestMatch() | number: '1.0-0') + '%' }}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Interviews</div>
+        <div class="stat-value">{{ interviews().length }}</div>
+        <div class="stat-hint">{{ completedInterviews().length }} completed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Average interview score</div>
+        <div class="stat-value">{{ averageScore() === null ? '–' : (averageScore() | number: '1.0-0') }}</div>
+        <div class="stat-hint">{{ averageScore() === null ? 'Complete an interview to see it' : 'out of 100' }}</div>
+      </div>
+    }
+  </section>
+
+  @if (!loading()) {
+    <section class="card next-step">
+      <mat-icon class="next-icon" aria-hidden="true">{{ nextStep().icon }}</mat-icon>
       <div>
-        <h3>Recent activity</h3>
-        <p>Your latest preparation work</p>
+        <p class="eyebrow">Recommended next step</p>
+        <h2>{{ nextStep().title }}</h2>
+        <p class="muted">{{ nextStep().text }}</p>
       </div>
-      <a routerLink="/interviews">View all</a>
-    </div>
-    <div class="activity" *ngFor="let a of activity">
-      <div class="mini-icon">
-        <mat-icon>{{ a.icon }}</mat-icon>
-      </div>
-      <div>
-        <b>{{ a.title }}</b>
-        <p>{{ a.sub }}</p>
-      </div>
-      <span>{{ a.time }}</span>
-    </div>
-  </div>
-  <div class="panel progress">
-    <p class="eyebrow">THIS WEEK</p>
-    <h3>Keep your momentum</h3>
-    <div class="score"><strong>72%</strong><span>Preparation score</span></div>
-    <div class="bar"><i></i></div>
-    <p>Complete one practice interview to improve your weekly score.</p>
-  </div>
-</section>
+      <a mat-flat-button [routerLink]="nextStep().link">{{ nextStep().action }}</a>
+    </section>
+
+    <section class="card">
+      <div class="card-header"><h2>Recent activity</h2></div>
+      <ul class="activity">
+        <li>
+          <mat-icon aria-hidden="true">description</mat-icon>
+          @if (latestResume(); as resume) {
+            <div>
+              <a [routerLink]="['/app/resumes', resume.id]">{{ resume.originalFileName }}</a>
+              <span class="subtle">Uploaded {{ resume.uploadTime | date: 'MMM d, h:mm a' }}</span>
+            </div>
+            <span class="pill" [class.success]="resume.status === 'PARSED'" [class.danger]="resume.status === 'FAILED'"
+              [class.info]="resume.status === 'PROCESSING' || resume.status === 'UPLOADED'">{{ resume.status | titlecase }}</span>
+          } @else {
+            <div><span>No resume yet</span><a class="subtle" routerLink="/app/resumes">Upload your first resume →</a></div>
+          }
+        </li>
+        <li>
+          <mat-icon aria-hidden="true">join_inner</mat-icon>
+          @if (latestMatch(); as match) {
+            <div>
+              <a [routerLink]="['/app/matches', match.id]">{{ match.jobTitle }} · {{ match.companyName }}</a>
+              <span class="subtle">Matched {{ match.createdAt | date: 'MMM d, h:mm a' }}</span>
+            </div>
+            <span class="pill" [class.success]="matchLabel(match.matchScore).tone === 'good'"
+              [class.warning]="matchLabel(match.matchScore).tone === 'fair'"
+              [class.danger]="matchLabel(match.matchScore).tone === 'low'">{{ match.matchScore | number: '1.0-0' }}%</span>
+          } @else {
+            <div><span>No job match yet</span><a class="subtle" routerLink="/app/matches">Compare your resume with a job →</a></div>
+          }
+        </li>
+        <li>
+          <mat-icon aria-hidden="true">forum</mat-icon>
+          @if (latestInterview(); as interview) {
+            <div>
+              <a [routerLink]="interview.status === 'COMPLETED' ? ['/app/interviews', interview.id, 'result'] : ['/app/interviews', interview.id]">
+                {{ interview.jobTitle }} interview</a>
+              <span class="subtle">Started {{ interview.startedAt | date: 'MMM d, h:mm a' }}</span>
+            </div>
+            @if (interview.status === 'COMPLETED') {
+              <span class="pill success">{{ interview.overallScore | number: '1.0-0' }}/100</span>
+            } @else {
+              <span class="pill info">{{ interview.answeredQuestions }}/{{ interview.totalQuestions }} answered</span>
+            }
+          } @else {
+            <div><span>No interviews yet</span><a class="subtle" routerLink="/app/interviews">Start your first AI interview →</a></div>
+          }
+        </li>
+      </ul>
+    </section>
+  }
+}

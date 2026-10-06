@@ -1,0 +1,16 @@
+.analysis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: start;
+
+  button {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 760px) {
+  .analysis {
+    grid-template-columns: 1fr;
+  }
+}

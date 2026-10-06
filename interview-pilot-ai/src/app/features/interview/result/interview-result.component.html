@@ -1,0 +1,81 @@
+<a class="back-link" routerLink="/app/interviews"><mat-icon>arrow_back</mat-icon>Interviews</a>
+
+@if (loading()) {
+  <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span></div>
+} @else if (failed()) {
+  <div class="card error-state">
+    <mat-icon>error_outline</mat-icon>
+    <h3>These results could not be loaded</h3>
+    <button mat-stroked-button (click)="load()">Retry</button>
+  </div>
+} @else if (interview(); as interview) {
+  @if (interview.status !== 'COMPLETED') {
+    <div class="card empty-state">
+      <mat-icon>hourglass_top</mat-icon>
+      <h3>This interview is not finished yet</h3>
+      <p>Results are available once you finish the interview.</p>
+      <a mat-flat-button [routerLink]="['/app/interviews', interview.id]">Continue interview</a>
+    </div>
+  } @else {
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Interview results</p>
+        <h1>{{ interview.jobTitle }} · {{ interview.companyName }}</h1>
+        <p>Completed {{ interview.completedAt | date: 'MMM d, y, h:mm a' }} · {{ interview.answeredQuestions }} of {{ interview.totalQuestions }} questions answered</p>
+      </div>
+      <a mat-flat-button routerLink="/app/interviews" [queryParams]="{ resumeId: interview.resumeId, jobDescriptionId: interview.jobDescriptionId }">
+        <mat-icon>replay</mat-icon>Practise again</a>
+    </header>
+
+    <section class="card overall">
+      <div [class]="'score-ring large ' + tone()" [style.--value]="interview.overallScore ?? 0">
+        <span>{{ interview.overallScore ?? 0 | number: '1.0-0' }}</span>
+      </div>
+      <div>
+        <h2>{{ verdict() }}</h2>
+        <p class="muted">Overall score out of 100: the average of all answer scores, with unanswered questions counted as 0.</p>
+      </div>
+    </section>
+
+    <div class="grid-2 summary">
+      <section class="card">
+        <h2>Strong areas</h2>
+        @for (area of strongAreas(); track area.category) {
+          <div class="area"><span>{{ label(area.category) | titlecase }}</span><span class="pill success">{{ area.average | number: '1.0-0' }}</span></div>
+        } @empty { <p class="muted">No category averaged 70 or more yet.</p> }
+      </section>
+      <section class="card">
+        <h2>Areas to improve</h2>
+        @for (area of weakAreas(); track area.category) {
+          <div class="area"><span>{{ label(area.category) | titlecase }}</span><span class="pill danger">{{ area.average | number: '1.0-0' }}</span></div>
+        } @empty { <p class="muted">No category averaged below 60.</p> }
+      </section>
+    </div>
+
+    @if (preparation().length) {
+      <section class="card">
+        <h2>Recommended preparation</h2>
+        <p class="subtle">From the AI's feedback on your lower-scoring answers.</p>
+        <ul>@for (item of preparation(); track $index) { <li>{{ item }}</li> }</ul>
+      </section>
+    }
+
+    <h2 class="section-title">Your answers</h2>
+    @for (question of interview.questions; track question.id) {
+      <section class="card answer-card">
+        <div class="meta">
+          <span class="subtle">Question {{ question.sequenceNumber }}</span>
+          <span class="pill">{{ label(question.category) | titlecase }}</span>
+          <span class="pill">{{ question.difficulty | titlecase }}</span>
+        </div>
+        <h3>{{ question.question }}</h3>
+        @if (question.answer; as answer) {
+          <p class="your-answer prewrap">{{ answer.answer }}</p>
+          <app-answer-feedback [answer]="answer" />
+        } @else {
+          <p class="muted">Not answered (counted as 0).</p>
+        }
+      </section>
+    }
+  }
+}

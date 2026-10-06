@@ -6,7 +6,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-columns: 45% 55%;
-  background: #fff;
+  background: var(--app-surface);
 }
 .auth-intro {
   background: #0c2756;
@@ -85,22 +85,22 @@ h2 {
   font-size: 27px;
   letter-spacing: -0.035em;
   margin: 0 0 8px;
-  color: #172b4d;
+  color: var(--app-text);
 }
 .muted {
-  color: #748195;
+  color: var(--app-text-muted);
   font-size: 14px;
   margin: 0 0 28px;
 }
 
 .auth-error {
   margin: -12px 0 16px;
-  color: #c6362a;
+  color: var(--app-danger);
   font-size: 13px;
 }
 .auth-success {
   margin: -12px 0 16px;
-  color: #267447;
+  color: var(--app-success);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -125,14 +125,12 @@ mat-form-field {
 }
 .form-row a,
 .switch a {
-  color: #1768dc;
+  color: var(--app-primary);
   text-decoration: none;
   font-weight: 600;
 }
 .primary-btn {
   height: 47px;
-  background: #1668e8 !important;
-  color: #fff !important;
   font-weight: 600;
 }
 .primary-btn mat-icon {
@@ -141,18 +139,18 @@ mat-form-field {
 }
 .switch {
   text-align: center;
-  color: #718096;
+  color: var(--app-text-muted);
   font-size: 13px;
   margin: 24px 0;
 }
 .hint {
   font-size: 11px;
-  color: #718096;
+  color: var(--app-text-muted);
   margin: -7px 0 9px;
 }
 .mobile-brand {
   display: none;
-  color: #172b4d;
+  color: var(--app-text);
   margin-bottom: 30px;
 }
 @media (max-width: 800px) {
