@@ -27,6 +27,11 @@ export class InterviewService {
     return this.api.post<InterviewAnswer>(`${this.baseUrl}/${interviewId}/questions/${questionId}/answer`, { answer });
   }
 
+  /** Deletes the interview with its questions and answers. */
+  delete(interviewId: number): Observable<void> {
+    return this.api.delete<void>(`${this.baseUrl}/${interviewId}`);
+  }
+
   complete(interviewId: number): Observable<Interview> {
     return this.api.post<Interview>(`${this.baseUrl}/${interviewId}/complete`, {});
   }

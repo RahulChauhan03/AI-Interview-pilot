@@ -4,13 +4,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { AtsScoreCardComponent } from '../components/ats-score-card/ats-score-card.component';
 import { ExperienceTimelineComponent } from '../components/experience-timeline/experience-timeline.component';
 import { ParsedResume, ResumeRecord } from '../models/parsed-resume.model';
 import { ResumeStatus } from '../models/resume-status.enum';
 import { Resume } from '../models/resume.model';
 import { ResumeService } from '../services/resume.service';
-
-const PLACEHOLDER = /^(none|n\/?a|null|undefined|-+|not (available|specified|provided|mentioned))$/i;
+import { PLACEHOLDER, fieldValue } from '../resume-fields';
 
 interface Field {
   label: string;
@@ -20,7 +20,7 @@ interface Field {
 
 /** Everything the AI extracted from one resume (the parsed MongoDB document), section by section. */
 @Component({
-  imports: [RouterLink, DatePipe, DecimalPipe, MatButtonModule, MatIconModule, ExperienceTimelineComponent],
+  imports: [RouterLink, DatePipe, DecimalPipe, MatButtonModule, MatIconModule, AtsScoreCardComponent, ExperienceTimelineComponent],
   templateUrl: './resume-detail.component.html',
   styleUrl: './resume-detail.component.scss',
 })
@@ -63,12 +63,7 @@ export class ResumeDetailComponent implements OnInit {
    * Placeholders the AI writes for missing data ("None", "N/A", …) count as empty.
    */
   value(record: ResumeRecord, ...keys: string[]): string {
-    for (const key of keys) {
-      const value = record?.[key];
-      if (typeof value === 'number') return String(value);
-      if (typeof value === 'string' && value.trim() && !PLACEHOLDER.test(value.trim())) return value.trim();
-    }
-    return '';
+    return fieldValue(record, ...keys);
   }
 
   /** Fields of an education/project entry other than the ones shown as its title. */

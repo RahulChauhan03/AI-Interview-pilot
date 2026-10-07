@@ -2,6 +2,7 @@ package com.interviewpilot.interview.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interviewpilot.common.concurrency.KeyedLocks;
 import com.interviewpilot.exception.ConflictException;
 import com.interviewpilot.exception.ResourceNotFoundException;
 import com.interviewpilot.interview.dto.InterviewAnswerDto;
@@ -55,9 +56,27 @@ public class InterviewServiceImpl implements InterviewService {
     private final InterviewGenerationService interviewGenerationService;
     private final AnswerScoringService answerScoringService;
     private final ObjectMapper objectMapper;
+    private final KeyedLocks locks;
 
     @Override
     public InterviewResponseDto create(InterviewRequestDto request, Long userId) {
+        // While an interview for this job and resume is still in progress, a repeated request returns it instead of
+        // generating another one; finish or delete it to start a new one.
+        jobDescriptionService.findOwned(request.getJobDescriptionId(), userId); // another user's job: 404 before anything else
+        String key = "interview:" + userId + ":" + request.getJobDescriptionId() + ":" + request.getResumeId();
+        return locks.withLock(key, () -> sessionRepository
+                .findFirstByUserIdAndJobDescriptionIdAndResumeIdAndStatusOrderByCreatedAtDesc(
+                        userId, request.getJobDescriptionId(), request.getResumeId(), InterviewStatus.IN_PROGRESS.name())
+                .map(existing -> {
+                    log.info("Reusing interview in progress: sessionId={}", existing.getId());
+                    InterviewResponseDto dto = toDto(existing, true);
+                    dto.setReused(true);
+                    return dto;
+                })
+                .orElseGet(() -> generate(request, userId)));
+    }
+
+    private InterviewResponseDto generate(InterviewRequestDto request, Long userId) {
         JobDescription jobDescription = jobDescriptionService.findOwned(request.getJobDescriptionId(), userId);
         ParsedResume parsedResume = resumeService.findParsedByIdForUser(request.getResumeId(), userId);
         Resume resume = resumeService.findByIdForUser(request.getResumeId(), userId);
@@ -102,6 +121,19 @@ public class InterviewServiceImpl implements InterviewService {
         return sessionRepository.findByJobDescriptionIdAndUserIdOrderByCreatedAtDesc(jobDescriptionId, userId).stream()
                 .map(session -> toDto(session, true))
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<InterviewResponseDto> findAllWithQuestionsForUser(Long userId) {
+        return sessionRepository.findByUserIdOrderByCreatedAtDesc(userId).stream().map(session -> toDto(session, true)).toList();
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id, Long userId) {
+        sessionRepository.delete(findOwned(id, userId)); // questions, answers and logs are removed with it
+        log.info("Interview deleted: sessionId={}", id);
     }
 
     @Override

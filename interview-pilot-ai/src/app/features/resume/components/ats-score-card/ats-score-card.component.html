@@ -1,0 +1,49 @@
+@let r = result();
+<section [class]="'card ats ' + r.tone" aria-labelledby="ats-title">
+  <div class="ats-head">
+    <h2 id="ats-title">ATS friendliness</h2>
+  </div>
+
+  <div class="ring-wrap">
+    <svg class="ring" viewBox="0 0 128 128" role="img" [attr.aria-label]="'ATS score ' + r.score + ' out of 100, ' + r.band">
+      <defs>
+        <linearGradient [attr.id]="gradientId" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" class="stop-start" />
+          <stop offset="100%" class="stop-end" />
+        </linearGradient>
+      </defs>
+      <circle class="track" cx="64" cy="64" [attr.r]="radius" />
+      <circle class="progress" cx="64" cy="64" [attr.r]="radius" [attr.stroke]="'url(#' + gradientId + ')'"
+        [style.--circumference]="circumference" [style.--offset]="offset()"
+        [attr.stroke-dasharray]="circumference" />
+    </svg>
+    <div class="ring-label" aria-hidden="true">
+      <span class="value">{{ shown() }}<small>%</small></span>
+      <span class="caption">ATS Score</span>
+    </div>
+  </div>
+
+  <div class="band">
+    <span [class]="'pill ' + (r.tone === 'good' ? 'success' : r.tone === 'fair' ? 'warning' : 'danger')">{{ r.band }}</span>
+    <button type="button" class="how" [matTooltip]="explanation" matTooltipPosition="above" [attr.aria-description]="explanation">
+      <mat-icon svgIcon="info" aria-hidden="true"></mat-icon>How is this calculated?
+    </button>
+  </div>
+
+  <ul class="checks" aria-label="Score breakdown">
+    @for (check of r.checks; track check.label) {
+      <li [class.full]="!check.tip">
+        <mat-icon [svgIcon]="check.tip ? 'circle' : 'success'" aria-hidden="true"></mat-icon>
+        <span class="label">{{ check.label }}</span>
+        <span class="points">{{ check.points }}/{{ check.max }}</span>
+      </li>
+    }
+  </ul>
+
+  @if (improvements().length) {
+    <h3>How to improve</h3>
+    <ul class="tips">
+      @for (check of improvements().slice(0, 3); track check.label) { <li>{{ check.tip }}</li> }
+    </ul>
+  }
+</section>

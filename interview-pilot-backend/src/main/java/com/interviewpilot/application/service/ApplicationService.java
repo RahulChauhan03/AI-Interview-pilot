@@ -12,6 +12,8 @@ public interface ApplicationService {
     List<ApplicationDto> findAllForUser(Long userId);
     ApplicationDto findByIdForUser(Long id, Long userId);
     ApplicationDto updateStatus(Long id, String status, Long userId);
+    /** Deletes the application and its generated documents (not the job description, matches or interviews). */
+    void delete(Long id, Long userId);
     WorkspaceDto workspace(Long jobDescriptionId, Long userId);
     JobApplication findOwned(Long id, Long userId);
     /** Called when a document is generated: links the base resume and moves SAVED to PREPARING. */

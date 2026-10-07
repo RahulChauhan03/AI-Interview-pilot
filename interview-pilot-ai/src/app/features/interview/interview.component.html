@@ -4,7 +4,7 @@
     <p>AI-generated interviews for your target jobs, with feedback on every answer.</p>
   </div>
   @if (!showSetup()) {
-    <button mat-flat-button (click)="showSetup.set(true)"><mat-icon>add</mat-icon>New interview</button>
+    <button mat-flat-button (click)="showSetup.set(true)"><mat-icon svgIcon="add"></mat-icon>New interview</button>
   }
 </header>
 
@@ -12,7 +12,7 @@
   <div class="card"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span></div>
 } @else if (failed()) {
   <div class="card error-state">
-    <mat-icon>cloud_off</mat-icon>
+    <mat-icon svgIcon="offline"></mat-icon>
     <h3>Interviews could not be loaded</h3>
     <button mat-stroked-button (click)="load()">Retry</button>
   </div>
@@ -62,7 +62,7 @@
   <section class="card">
     @if (!interviews().length) {
       <div class="empty-state">
-        <mat-icon>forum</mat-icon>
+        <mat-icon svgIcon="interview"></mat-icon>
         <h3>No interviews yet</h3>
         <p>Start your first AI interview to practise for a job and get feedback on your answers.</p>
         @if (!showSetup()) { <button mat-flat-button (click)="showSetup.set(true)">Start your first AI interview</button> }
@@ -88,6 +88,7 @@
                 </td>
                 <td class="cell-actions">
                   <a mat-stroked-button [routerLink]="link(interview)">{{ interview.status === 'COMPLETED' ? 'Results' : 'Continue' }}</a>
+                  <button mat-icon-button matTooltip="Delete" [disabled]="deletingId() === interview.id" (click)="remove(interview)" aria-label="Delete interview"><mat-icon svgIcon="delete"></mat-icon></button>
                 </td>
               </tr>
             }

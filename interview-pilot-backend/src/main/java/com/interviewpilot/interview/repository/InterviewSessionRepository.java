@@ -12,4 +12,6 @@ public interface InterviewSessionRepository extends JpaRepository<InterviewSessi
     long countByStatus(String status);
     List<InterviewSession> findByJobDescriptionIdAndUserIdOrderByCreatedAtDesc(Long jobDescriptionId, Long userId);
     List<InterviewSession> findTop10ByOrderByUpdatedAtDesc();
+    Optional<InterviewSession> findFirstByUserIdAndJobDescriptionIdAndResumeIdAndStatusOrderByCreatedAtDesc(
+            Long userId, Long jobDescriptionId, Long resumeId, String status);
 }

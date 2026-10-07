@@ -3,7 +3,7 @@
     <h1>Job descriptions</h1>
     <p>The roles you are targeting. Match your resume against them and practise interviews for them.</p>
   </div>
-  <a mat-flat-button routerLink="/app/job-descriptions/new"><mat-icon>add</mat-icon>New job description</a>
+  <a mat-flat-button routerLink="/app/job-descriptions/new"><mat-icon svgIcon="add"></mat-icon>New job description</a>
 </header>
 
 <section class="card">
@@ -11,13 +11,13 @@
     <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
   } @else if (failed()) {
     <div class="error-state">
-      <mat-icon>cloud_off</mat-icon>
+      <mat-icon svgIcon="offline"></mat-icon>
       <h3>Job descriptions could not be loaded</h3>
       <button mat-stroked-button (click)="load()">Retry</button>
     </div>
   } @else if (!jobs().length) {
     <div class="empty-state">
-      <mat-icon>work_outline</mat-icon>
+      <mat-icon svgIcon="job"></mat-icon>
       <h3>No job descriptions yet</h3>
       <p>Paste a job posting to see how well your resume matches and to practise for that interview.</p>
       <a mat-flat-button routerLink="/app/job-descriptions/new">Add your first job description</a>
@@ -44,9 +44,9 @@
                 }
               </td>
               <td class="cell-actions">
-                <a mat-icon-button [routerLink]="['/app/job-descriptions', job.id]" matTooltip="Open and match" [attr.aria-label]="'Open ' + job.jobTitle"><mat-icon>insights</mat-icon></a>
-                <a mat-icon-button [routerLink]="['/app/job-descriptions', job.id, 'edit']" matTooltip="Edit" [attr.aria-label]="'Edit ' + job.jobTitle"><mat-icon>edit</mat-icon></a>
-                <button mat-icon-button matTooltip="Delete" [attr.aria-label]="'Delete ' + job.jobTitle" [disabled]="deletingId() === job.id" (click)="remove(job)"><mat-icon>delete_outline</mat-icon></button>
+                <!-- <a mat-icon-button [routerLink]="['/app/job-descriptions', job.id]" matTooltip="Open workspace" [attr.aria-label]="'Open ' + job.jobTitle"><mat-icon svgIcon="arrow-right"></mat-icon></a> -->
+                <a mat-icon-button [routerLink]="['/app/job-descriptions', job.id, 'edit']" matTooltip="Edit" [attr.aria-label]="'Edit ' + job.jobTitle"><mat-icon svgIcon="edit"></mat-icon></a>
+                <button mat-icon-button matTooltip="Delete" [attr.aria-label]="'Delete ' + job.jobTitle" [disabled]="deletingId() === job.id" (click)="remove(job)"><mat-icon svgIcon="delete"></mat-icon></button>
               </td>
             </tr>
           }

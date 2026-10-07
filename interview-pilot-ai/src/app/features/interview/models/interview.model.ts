@@ -40,6 +40,8 @@ export interface Interview {
   nextQuestionId: number | null;
   /** Only present when a single interview is loaded. */
   questions: InterviewQuestion[] | null;
+  /** True when an interview in progress for the same job and resume was returned instead of a new one. */
+  reused?: boolean;
 }
 
 export interface CreateInterviewRequest {

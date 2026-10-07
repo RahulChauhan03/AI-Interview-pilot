@@ -107,6 +107,38 @@ class OllamaServiceTest {
     }
 
     @Test
+    void perTaskBudgetFromTheSchemaIsSentAsNumPredictAndRemovedFromTheFormat() {
+        ollama.expect(once(), requestTo(ENDPOINT))
+                .andExpect(jsonPath("$.options.num_predict").value(700))
+                .andExpect(jsonPath("$.format['x-max-output-tokens']").doesNotExist())
+                .andExpect(jsonPath("$.format.type").value("object"))
+                .andRespond(withSuccess(OK_RESPONSE, MediaType.APPLICATION_JSON));
+
+        assertThat(ollamaService.generateJson("match", Map.of("x-max-output-tokens", 700, "type", "object"))).isEqualTo("{}");
+        ollama.verify();
+    }
+
+    @Test
+    void perTaskBudgetNeverExceedsTheGlobalLimit() {
+        assertThat(ollamaService.tokenBudget(Map.of("x-max-output-tokens", 99_999))).isEqualTo(3000);
+        assertThat(ollamaService.tokenBudget(Map.of("type", "object"))).isEqualTo(3000);
+    }
+
+    @Test
+    void everyBundledSchemaHasABoundedBudgetAndBoundedLists() throws Exception {
+        var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        for (String name : List.of("resume-analysis", "resume-match", "interview-questions", "answer-evaluation", "tailored-resume", "cover-letter")) {
+            Map<String, Object> schema = JsonSchemas.load(objectMapper, "ollama/" + name + "-schema.json");
+            assertThat(schema.get("x-max-output-tokens")).as(name).isInstanceOf(Integer.class);
+            String json = objectMapper.writeValueAsString(schema);
+            assertThat(json.split("\"type\":\"array\"").length - 1).as(name + " arrays")
+                    .isEqualTo(json.split("\"maxItems\"").length - 1);
+        }
+        assertThat(JsonSchemas.load(new com.fasterxml.jackson.databind.ObjectMapper(), "ollama/resume-match-schema.json")
+                .get("required")).asList().last().isEqualTo("matchScore");
+    }
+
+    @Test
     void generateJsonIsRetriedLikeEveryOtherCall() {
         ollama.expect(times(2), requestTo(ENDPOINT)).andRespond(withServiceUnavailable());
         ollama.expect(once(), requestTo(ENDPOINT)).andRespond(withSuccess(OK_RESPONSE, MediaType.APPLICATION_JSON));

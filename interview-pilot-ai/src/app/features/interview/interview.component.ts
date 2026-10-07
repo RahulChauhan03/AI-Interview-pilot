@@ -1,3 +1,6 @@
+import { MatDialog } from '@angular/material/dialog';
+import { NotificationService } from '../../core/services/notification.service';
+import { confirmAction } from '../../shared/confirm-dialog.component';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,6 +9,7 @@ import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { ResumeStatus } from '../resume/models/resume-status.enum';
@@ -18,11 +22,14 @@ import { InterviewService } from './services/interview.service';
 
 /** Interview list and setup. "?resumeId=&jobDescriptionId=" opens the setup pre-filled (e.g. from a match). */
 @Component({
-  imports: [RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatProgressBarModule, MatSelectModule],
+  imports: [MatTooltipModule, RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatProgressBarModule, MatSelectModule],
   templateUrl: './interview.component.html',
   styleUrl: './interview.component.scss',
 })
 export class InterviewComponent implements OnInit {
+  private readonly dialog = inject(MatDialog);
+  private readonly notifications = inject(NotificationService);
+  readonly deletingId = signal<number | null>(null);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly query = inject(ActivatedRoute).snapshot.queryParamMap;
@@ -73,8 +80,26 @@ export class InterviewComponent implements OnInit {
     if (this.setupForm.invalid || this.creating() || resumeId === null || jobDescriptionId === null) { this.setupForm.markAllAsTouched(); return; }
     this.creating.set(true);
     this.interviewService.create({ resumeId, jobDescriptionId, questionCount }).subscribe({
-      next: (interview) => this.router.navigate(['/app/interviews', interview.id]),
+      next: (interview) => {
+        if (interview.reused) this.notifications.info('You already have an interview in progress for this job, so it was opened.');
+        this.router.navigate(['/app/interviews', interview.id]);
+      },
       error: () => this.creating.set(false),
+    });
+  }
+
+  remove(interview: Interview): void {
+    confirmAction(this.dialog, { title: 'Delete this interview?', confirmLabel: 'Delete',
+      message: 'Its questions, answers and scores will be removed.' }).subscribe(() => {
+      this.deletingId.set(interview.id);
+      this.interviewService.delete(interview.id).subscribe({
+        next: () => {
+          this.interviews.update((items) => items.filter((item) => item.id !== interview.id));
+          this.deletingId.set(null);
+          this.notifications.success('Interview deleted.');
+        },
+        error: () => this.deletingId.set(null),
+      });
     });
   }
 

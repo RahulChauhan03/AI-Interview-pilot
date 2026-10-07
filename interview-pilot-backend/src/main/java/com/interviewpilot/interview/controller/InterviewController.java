@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +35,9 @@ public class InterviewController {
     public ResponseEntity<ApiResponse<InterviewResponseDto>> create(@Valid @RequestBody InterviewRequestDto request,
                                                                    @AuthenticationPrincipal CustomUserDetails user) {
         InterviewResponseDto data = interviewService.create(request, user.getUserId());
+        if (data.isReused()) {
+            return ResponseEntity.ok(response(HttpStatus.OK, "Interview already in progress for this job and resume", data));
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(response(HttpStatus.CREATED, "Interview created", data));
     }
 
@@ -65,6 +69,12 @@ public class InterviewController {
     @PostMapping("/{id}/complete")
     public ApiResponse<InterviewResponseDto> complete(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         return response(HttpStatus.OK, "Interview completed", interviewService.complete(id, user.getUserId()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
+        interviewService.delete(id, user.getUserId());
+        return response(HttpStatus.OK, "Interview deleted", null);
     }
 
     private <T> ApiResponse<T> response(HttpStatus status, String message, T data) {

@@ -24,9 +24,9 @@ export class SettingsComponent {
   readonly sendingReset = signal(false);
   readonly profileLink = this.auth.isAdmin() ? '/admin/profile' : '/app/profile';
   readonly modes: { value: ThemeMode; label: string; icon: string }[] = [
-    { value: 'light', label: 'Light', icon: 'light_mode' },
-    { value: 'dark', label: 'Dark', icon: 'dark_mode' },
-    { value: 'system', label: 'System', icon: 'computer' },
+    { value: 'light', label: 'Light', icon: 'sun' },
+    { value: 'dark', label: 'Dark', icon: 'moon' },
+    { value: 'system', label: 'System', icon: 'monitor' },
   ];
 
   /** Uses the existing password-reset flow: a one-time link is emailed to the account's address. */

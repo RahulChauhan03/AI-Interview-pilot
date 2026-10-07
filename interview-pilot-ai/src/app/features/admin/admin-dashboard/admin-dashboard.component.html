@@ -8,18 +8,18 @@
 
 @if (statsFailed()) {
   <div class="card error-state">
-    <mat-icon>cloud_off</mat-icon>
+    <mat-icon svgIcon="offline"></mat-icon>
     <h3>Statistics could not be loaded</h3>
     <button mat-stroked-button (click)="loadStats()">Retry</button>
   </div>
 } @else {
   <section class="stat-grid" aria-label="Statistics">
     @if (stats(); as s) {
-      <div class="stat"><div class="stat-label">Users</div><div class="stat-value">{{ s.users }}</div><div class="stat-hint">{{ s.admins }} admin{{ s.admins === 1 ? '' : 's' }}</div></div>
-      <div class="stat"><div class="stat-label">Resumes</div><div class="stat-value">{{ s.resumes }}</div>
+      <div class="stat"><div class="stat-top"><div class="stat-label">Users</div><span class="stat-icon"><mat-icon svgIcon="users"></mat-icon></span></div><div class="stat-value">{{ s.users }}</div><div class="stat-hint">{{ s.admins }} admin{{ s.admins === 1 ? '' : 's' }}</div></div>
+      <div class="stat"><div class="stat-top"><div class="stat-label">Resumes</div><span class="stat-icon violet"><mat-icon svgIcon="resume"></mat-icon></span></div><div class="stat-value">{{ s.resumes }}</div>
         <div class="stat-hint">{{ s.resumesParsed }} parsed · {{ s.resumesInProgress }} in progress · {{ s.resumesFailed }} failed</div></div>
-      <div class="stat"><div class="stat-label">Job descriptions</div><div class="stat-value">{{ s.jobDescriptions }}</div><div class="stat-hint">{{ s.matches }} {{ s.matches === 1 ? 'match' : 'matches' }}</div></div>
-      <div class="stat"><div class="stat-label">Interviews</div><div class="stat-value">{{ s.interviews }}</div><div class="stat-hint">{{ s.interviewsCompleted }} completed · {{ s.answers }} answers</div></div>
+      <div class="stat"><div class="stat-top"><div class="stat-label">Job descriptions</div><span class="stat-icon green"><mat-icon svgIcon="job"></mat-icon></span></div><div class="stat-value">{{ s.jobDescriptions }}</div><div class="stat-hint">{{ s.matches }} {{ s.matches === 1 ? 'match' : 'matches' }}</div></div>
+      <div class="stat"><div class="stat-top"><div class="stat-label">Interviews</div><span class="stat-icon amber"><mat-icon svgIcon="interview"></mat-icon></span></div><div class="stat-value">{{ s.interviews }}</div><div class="stat-hint">{{ s.interviewsCompleted }} completed · {{ s.answers }} answers</div></div>
     } @else {
       @for (i of [1, 2, 3, 4]; track i) { <div class="stat"><span class="skeleton short"></span><span class="skeleton tall"></span></div> }
     }

@@ -1,8 +1,8 @@
 <section class="auth-page">
   <div class="auth-intro">
-    <a class="auth-brand"><span>IP</span>Interview Pilot <b>AI</b></a>
+    <a class="auth-brand"><span>HF</span>HireFlow</a>
     <div>
-      <p class="eyebrow">CAREER INTELLIGENCE PLATFORM</p>
+      <p class="eyebrow">AI CAREER &amp; INTERVIEW ASSISTANT</p>
       <h1>Prepare with<br /><em>confidence.</em></h1>
       <p class="intro-copy">
         Your focused workspace to build stronger applications and ace every interview.
@@ -12,7 +12,7 @@
   </div>
   <div class="auth-panel">
     <div class="auth-card">
-      <a class="mobile-brand">Interview Pilot <b>AI</b></a>
+      <a class="mobile-brand">HireFlow</a>
       <ng-container *ngIf="isForgotPassword; else resetPasswordOrAuth">
         <p class="eyebrow">PASSWORD RECOVERY</p>
         <h2>Forgot your password?</h2>
@@ -25,7 +25,7 @@
             <input matInput formControlName="email" type="email" placeholder="you@example.com" />
           </mat-form-field>
           <button mat-flat-button class="primary-btn" type="submit">
-            Send reset link <mat-icon>arrow_forward</mat-icon>
+            Send reset link <mat-icon svgIcon="arrow-right"></mat-icon>
           </button>
         </form>
         <p class="switch"><a routerLink="/login">Back to sign in</a></p>
@@ -41,19 +41,19 @@
             <mat-form-field appearance="outline">
               <mat-label>New password</mat-label>
               <input matInput formControlName="password" [type]="showRegisterPassword ? 'text' : 'password'" />
-              <button mat-icon-button matSuffix type="button" (click)="showRegisterPassword = !showRegisterPassword">
-                <mat-icon>{{ showRegisterPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="showRegisterPassword = !showRegisterPassword" [attr.aria-label]="showRegisterPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showRegisterPassword">
+                <mat-icon [svgIcon]="showRegisterPassword ? 'eye-off' : 'eye'"></mat-icon>
               </button>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Confirm new password</mat-label>
               <input matInput formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" />
-              <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword = !showConfirmPassword">
-                <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <button mat-icon-button matSuffix type="button" (click)="showConfirmPassword = !showConfirmPassword" [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showConfirmPassword">
+                <mat-icon [svgIcon]="showConfirmPassword ? 'eye-off' : 'eye'"></mat-icon>
               </button>
             </mat-form-field>
             <p class="hint">Use 8+ characters with uppercase, lowercase, number and special character.</p>
-            <button mat-flat-button class="primary-btn" type="submit">Reset password <mat-icon>arrow_forward</mat-icon></button>
+            <button mat-flat-button class="primary-btn" type="submit">Reset password <mat-icon svgIcon="arrow-right"></mat-icon></button>
           </form>
           <p class="switch"><a routerLink="/login">Back to sign in</a></p>
         </ng-container>
@@ -83,9 +83,9 @@
               mat-icon-button
               matSuffix
               type="button"
-              (click)="showPassword = !showPassword"
+              (click)="showPassword = !showPassword" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showPassword"
             >
-              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <mat-icon [svgIcon]="showPassword ? 'eye-off' : 'eye'"></mat-icon>
             </button></mat-form-field
           >
           <div class="form-row">
@@ -94,11 +94,11 @@
             <a routerLink="/forgot-password">Forgot password?</a>
           </div>
           <button mat-flat-button class="primary-btn" type="submit">
-            Sign in <mat-icon>arrow_forward</mat-icon>
+            Sign in <mat-icon svgIcon="arrow-right"></mat-icon>
           </button>
         </form>
         <p class="switch">
-          New to Interview Pilot? <a routerLink="/register">Create an account</a>
+          New to HireFlow? <a routerLink="/register">Create an account</a>
         </p></ng-container
       >
       <ng-template #registration
@@ -124,9 +124,9 @@
               mat-icon-button
               matSuffix
               type="button"
-              (click)="showRegisterPassword = !showRegisterPassword"
+              (click)="showRegisterPassword = !showRegisterPassword" [attr.aria-label]="showRegisterPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showRegisterPassword"
             >
-              <mat-icon>{{ showRegisterPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <mat-icon [svgIcon]="showRegisterPassword ? 'eye-off' : 'eye'"></mat-icon>
             </button></mat-form-field
           ><mat-form-field appearance="outline"
             ><mat-label>Confirm password</mat-label
@@ -135,15 +135,15 @@
               mat-icon-button
               matSuffix
               type="button"
-              (click)="showConfirmPassword = !showConfirmPassword"
+              (click)="showConfirmPassword = !showConfirmPassword" [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showConfirmPassword"
             >
-              <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <mat-icon [svgIcon]="showConfirmPassword ? 'eye-off' : 'eye'"></mat-icon>
             </button></mat-form-field>
           <p class="hint">
             Use 8+ characters with uppercase, lowercase, number and special character.
           </p>
           <button mat-flat-button class="primary-btn" type="submit">
-            Create account <mat-icon>arrow_forward</mat-icon>
+            Create account <mat-icon svgIcon="arrow-right"></mat-icon>
           </button>
         </form>
         <p class="switch">

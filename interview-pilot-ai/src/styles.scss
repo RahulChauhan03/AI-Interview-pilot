@@ -14,11 +14,11 @@ html {
     density: 0,
   ));
 
-  --app-bg: light-dark(#f6f7f9, #0f1217);
+  --app-bg: light-dark(#f7f8fa, #0d1015);
   --app-surface: light-dark(#ffffff, #171b22);
   --app-surface-muted: light-dark(#f8f9fb, #1c212a);
   --app-surface-hover: light-dark(#f1f4f8, #222834);
-  --app-border: light-dark(#e3e7ed, #2a313c);
+  --app-border: light-dark(#e6e9ef, #252b35);
   --app-border-strong: light-dark(#cdd4de, #3a4350);
   --app-text: light-dark(#17202e, #e7ebf1);
   --app-text-muted: light-dark(#596474, #a1abba);
@@ -32,8 +32,33 @@ html {
   --app-danger: light-dark(#c4311f, #ff8a7a);
   --app-danger-soft: light-dark(#fdecea, #351a17);
   --app-shadow-color: light-dark(rgba(16, 24, 40, 0.06), rgba(0, 0, 0, 0.35));
-  --app-radius: 12px;
-  --app-radius-sm: 8px;
+  --app-shadow: 0 1px 2px light-dark(rgba(16, 24, 40, 0.04), rgba(0, 0, 0, 0.3)), 0 1px 3px light-dark(rgba(16, 24, 40, 0.05), rgba(0, 0, 0, 0.2));
+  --app-shadow-hover: 0 4px 12px light-dark(rgba(16, 24, 40, 0.08), rgba(0, 0, 0, 0.4));
+  --app-ring: 0 0 0 3px light-dark(rgba(33, 96, 217, 0.18), rgba(122, 167, 255, 0.25));
+  --app-radius: 14px;
+  --app-radius-sm: 10px;
+  --app-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Material shapes and outlines tuned to the app: softer corners, quieter outlines. */
+  @include mat.button-overrides((
+    filled-container-shape: 10px,
+    outlined-container-shape: 10px,
+    text-container-shape: 10px,
+    protected-container-shape: 10px,
+    tonal-container-shape: 10px,
+    filled-container-height: 38px,
+    outlined-container-height: 38px,
+    outlined-outline-color: var(--app-border-strong),
+  ));
+  @include mat.form-field-overrides((
+    outlined-container-shape: 10px,
+    outlined-outline-color: var(--app-border-strong),
+    outlined-hover-outline-color: var(--app-text-subtle),
+  ));
+  @include mat.dialog-overrides((container-shape: 16px));
+  @include mat.menu-overrides((container-shape: 12px));
+  @include mat.tooltip-overrides((container-shape: 8px));
+  @include mat.tabs-overrides((active-indicator-height: 2px, active-indicator-shape: 2px 2px 0 0));
 }
 
 * {
@@ -47,11 +72,45 @@ body {
   background: var(--app-bg);
   color: var(--app-text);
   font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* Routed components are inline elements by default; make every routed page a full-width block. */
+router-outlet + * {
+  display: block;
+  min-width: 0;
+}
+
+/* Long unbroken text (file names, URLs) wraps instead of pushing content out of its card. Tables keep normal
+   wrapping so their columns are not squeezed. */
+.card,
+.page-header {
+  overflow-wrap: anywhere;
+}
+
+.data-table {
+  overflow-wrap: normal;
 }
 
 a {
   color: var(--app-primary);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+/* Text links inside content underline on hover; buttons, tabs, menu items and navigation do not. */
+.card a:not(.mat-mdc-button-base):not(.mat-mdc-menu-item):hover,
+.data-table a:not(.mat-mdc-button-base):hover,
+p a:hover,
+.muted a:hover {
+  text-decoration: underline;
 }
 
 button {
@@ -63,17 +122,30 @@ button {
   outline-offset: 2px;
 }
 
-.material-icons,
-.mat-icon {
-  font-family: 'Material Icons Outlined' !important;
-  font-weight: normal;
-  font-style: normal;
+a,
+button,
+.card,
+.mat-mdc-button-base {
+  transition: background-color 150ms var(--app-ease), border-color 150ms var(--app-ease), box-shadow 150ms var(--app-ease),
+    color 150ms var(--app-ease);
 }
 
+/* Icons: Lucide stroke SVGs registered as Material svgIcons (shared/icons). One size and stroke everywhere. */
 .mat-icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: none;
   height: 20px !important;
   width: 20px !important;
   font-size: 20px;
+  line-height: 1;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    stroke-width: 1.75;
+  }
 }
 
 /* ---------- Page structure ---------- */
@@ -89,7 +161,8 @@ button {
     margin: 0;
     font-size: 26px;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
   }
 
   p {
@@ -127,12 +200,15 @@ button {
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius);
-  padding: 20px;
-  box-shadow: 0 1px 2px var(--app-shadow-color);
+  padding: 20px 22px;
+  box-shadow: var(--app-shadow);
 }
 
 .card + .card,
-.stack > * + * {
+.stack > * + *,
+.grid-2 + .card,
+.grid-2 + .grid-2,
+.card + .grid-2 {
   margin-top: 16px;
 }
 
@@ -282,7 +358,8 @@ button {
 
 .tag {
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: 14px;
+  line-height: 1.45;
   border: 1px solid var(--app-border);
   background: var(--app-surface-muted);
   font-size: 12px;
@@ -448,4 +525,167 @@ button {
   .hide-sm {
     display: none;
   }
+}
+
+/* Phones: table rows become stacked cards instead of squeezed columns. */
+@media (max-width: 600px) {
+  .table-wrap {
+    overflow-x: visible;
+  }
+
+  .data-table {
+    thead {
+      display: none;
+    }
+
+    tbody,
+    tr,
+    td {
+      display: block;
+    }
+
+    tr {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--app-border);
+    }
+
+    tr:last-child {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: none;
+    }
+
+    td {
+      padding: 3px 0;
+      border-bottom: 0;
+    }
+
+    td.hide-sm {
+      display: none;
+    }
+
+    .cell-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      text-align: left;
+    }
+  }
+}
+
+/* ---------- 2026 refresh: quieter chrome, clearer hierarchy ---------- */
+.stat {
+  .stat-value {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.data-table {
+  th {
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--app-text-subtle);
+  }
+}
+
+.pill {
+  padding: 2px 9px;
+  font-size: 11.5px;
+  letter-spacing: 0.01em;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.tag {
+  font-weight: 500;
+}
+
+/* Empty and error states: the icon sits in a soft tile. */
+.empty-state > .mat-icon,
+.error-state > .mat-icon {
+  box-sizing: content-box;
+  width: 26px !important;
+  height: 26px !important;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+}
+
+.error-state > .mat-icon {
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+}
+
+.empty-state h3 {
+  margin-top: 14px;
+  font-weight: 600;
+}
+
+/* Buttons: icons sized with the label. */
+.mat-mdc-button-base > .mat-icon {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.mat-mdc-icon-button .mat-icon {
+  color: var(--app-text-muted);
+}
+
+.mat-mdc-icon-button:hover .mat-icon {
+  color: var(--app-text);
+}
+
+.mat-mdc-menu-item .mat-icon {
+  color: var(--app-text-muted);
+}
+
+.mat-mdc-form-field-focus-overlay {
+  opacity: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+
+/* Workspace tabs wrap onto a second row on narrow screens instead of paginating (see workspace.component.scss). */
+@media (max-width: 1000px) {
+  .workspace-tabs .mat-mdc-tab-links {
+    flex-wrap: wrap;
+  }
+}
+
+/* Stat cards: label with a small tinted icon tile. */
+.stat-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stat-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+
+  .mat-icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  &.violet { background: light-dark(#f1ecfe, #251c3d); color: light-dark(#6d4ad9, #b9a3ff); }
+  &.green { background: var(--app-success-soft); color: var(--app-success); }
+  &.amber { background: var(--app-warning-soft); color: var(--app-warning); }
 }

@@ -6,9 +6,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interviewpilot.common.concurrency.KeyedLocks;
 import com.interviewpilot.exception.ConflictException;
 import com.interviewpilot.exception.OllamaUnavailableException;
 import com.interviewpilot.exception.ResourceNotFoundException;
@@ -57,7 +59,7 @@ class JobDescriptionServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new JobDescriptionServiceImpl(jobDescriptionRepository, matchRepository, interviewSessionRepository,
-                userRepository, resumeService, resumeMatchingService, new ObjectMapper());
+                userRepository, resumeService, resumeMatchingService, new ObjectMapper(), new KeyedLocks());
         jobDescription = JobDescription.builder().id(10L).user(owner)
                 .companyName("Acme").jobTitle("Backend Engineer").jobDescription("Java").build();
     }
@@ -208,5 +210,68 @@ class JobDescriptionServiceImplTest {
         when(jobDescriptionRepository.findByIdAndUserId(10L, OWNER)).thenReturn(Optional.of(jobDescription));
         when(resumeService.findParsedByIdForUser(5L, OWNER)).thenReturn(ParsedResume.builder().cleanText("resume text").build());
         when(resumeService.findByIdForUser(5L, OWNER)).thenReturn(Resume.builder().id(5L).originalFileName("cv.pdf").build());
+    }
+
+    @Test
+    void identicalJobDescriptionIsReusedInsteadOfDuplicated() {
+        jobDescription.setJobDescription("Java  and\nSpring Boot");
+        when(jobDescriptionRepository.findByUserIdAndCompanyNameAndJobTitle(OWNER, "Acme", "Backend Engineer"))
+                .thenReturn(List.of(jobDescription));
+        JobDescriptionRequestDto request = new JobDescriptionRequestDto();
+        request.setCompanyName(" Acme ");
+        request.setJobTitle("Backend Engineer");
+        request.setJobDescription("Java and Spring Boot");
+
+        JobDescriptionResponseDto result = service.create(request, OWNER);
+
+        assertThat(result.getId()).isEqualTo(10L);
+        assertThat(result.isReused()).isTrue();
+        verify(jobDescriptionRepository, never()).save(any());
+    }
+
+    @Test
+    void concurrentMatchRequestsRunTheAiOnce() throws Exception {
+        Resume resume = Resume.builder().id(5L).user(owner).build();
+        resume.setUpdatedAt(LocalDateTime.now().minusDays(1));
+        when(jobDescriptionRepository.findByIdAndUserId(10L, OWNER)).thenReturn(Optional.of(jobDescription));
+        when(resumeService.findParsedByIdForUser(5L, OWNER)).thenReturn(ParsedResume.builder().cleanText("resume").build());
+        when(resumeService.findByIdForUser(5L, OWNER)).thenReturn(resume);
+        java.util.concurrent.atomic.AtomicReference<ResumeJobMatch> saved = new java.util.concurrent.atomic.AtomicReference<>();
+        when(matchRepository.findFirstByResumeIdAndJobDescriptionIdOrderByCreatedAtDesc(5L, 10L))
+                .thenAnswer(invocation -> Optional.ofNullable(saved.get()));
+        when(resumeMatchingService.analyze(any(), any())).thenAnswer(invocation -> {
+            Thread.sleep(200);
+            return new ResumeMatchAnalysis(70, List.of("Java"), List.of(), List.of());
+        });
+        when(matchRepository.save(any())).thenAnswer(invocation -> {
+            ResumeJobMatch match = invocation.getArgument(0);
+            match.setId(1L);
+            match.setCreatedAt(LocalDateTime.now());
+            saved.set(match);
+            return match;
+        });
+
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        var first = pool.submit(() -> service.matchResume(10L, 5L, OWNER));
+        var second = pool.submit(() -> service.matchResume(10L, 5L, OWNER));
+        List<ResumeMatchResponseDto> results = List.of(first.get(), second.get());
+        pool.shutdown();
+
+        verify(resumeMatchingService, times(1)).analyze(any(), any());
+        verify(matchRepository, times(1)).save(any());
+        assertThat(results).extracting(ResumeMatchResponseDto::getId).containsOnly(1L);
+        assertThat(results).filteredOn(ResumeMatchResponseDto::isReused).hasSize(1);
+    }
+
+    @Test
+    void deleteMatchOnlyForTheOwner() {
+        ResumeJobMatch match = ResumeJobMatch.builder().id(1L).jobDescription(jobDescription).build();
+        when(matchRepository.findByIdAndJobDescriptionUserId(1L, OTHER_USER)).thenReturn(Optional.empty());
+        when(matchRepository.findByIdAndJobDescriptionUserId(1L, OWNER)).thenReturn(Optional.of(match));
+
+        assertThatThrownBy(() -> service.deleteMatch(1L, OTHER_USER)).isInstanceOf(ResourceNotFoundException.class);
+        verify(matchRepository, never()).delete(any());
+        service.deleteMatch(1L, OWNER);
+        verify(matchRepository).delete(match);
     }
 }

@@ -29,6 +29,11 @@ export class ApplicationService {
     return this.api.get<JobApplication>(`${this.baseUrl}/${id}`);
   }
 
+  /** Deletes the application and its generated documents; the job, matches and interviews stay. */
+  delete(id: number): Observable<void> {
+    return this.api.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
   updateStatus(id: number, status: ApplicationStatus): Observable<JobApplication> {
     return this.api.patch<JobApplication>(`${this.baseUrl}/${id}/status`, { status });
   }

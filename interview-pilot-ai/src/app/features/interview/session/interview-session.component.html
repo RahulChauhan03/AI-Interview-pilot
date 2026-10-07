@@ -1,10 +1,10 @@
-<a class="back-link" routerLink="/app/interviews"><mat-icon>arrow_back</mat-icon>Interviews</a>
+<a class="back-link" routerLink="/app/interviews"><mat-icon svgIcon="arrow-left"></mat-icon>Interviews</a>
 
 @if (loading()) {
   <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span></div>
 } @else if (failed()) {
   <div class="card error-state">
-    <mat-icon>error_outline</mat-icon>
+    <mat-icon svgIcon="error"></mat-icon>
     <h3>This interview could not be loaded</h3>
     <button mat-stroked-button (click)="load()">Retry</button>
   </div>
@@ -47,16 +47,16 @@
       </section>
 
       <nav class="question-nav" aria-label="Questions">
-        <button mat-button (click)="go(index() - 1)" [disabled]="index() === 0 || submitting()"><mat-icon>arrow_back</mat-icon>Previous</button>
+        <button mat-button (click)="go(index() - 1)" [disabled]="index() === 0 || submitting()"><mat-icon svgIcon="arrow-left"></mat-icon>Previous</button>
         <span class="spacer"></span>
         @if (!question.answer) {
           <button mat-flat-button (click)="submit()" [disabled]="submitting()">{{ submitting() ? 'Evaluating…' : 'Submit answer' }}</button>
         } @else if (interview.nextQuestionId && questions()[index() + 1]?.answer) {
-          <button mat-flat-button (click)="goToNextUnanswered()">Next unanswered<mat-icon iconPositionEnd>arrow_forward</mat-icon></button>
+          <button mat-flat-button (click)="goToNextUnanswered()">Next unanswered<mat-icon iconPositionEnd svgIcon="arrow-right"></mat-icon></button>
         } @else if (!interview.nextQuestionId) {
           <button mat-flat-button (click)="finish()" [disabled]="finishing()">See results</button>
         }
-        <button mat-button (click)="go(index() + 1)" [disabled]="index() >= questions().length - 1 || submitting()">Next<mat-icon iconPositionEnd>arrow_forward</mat-icon></button>
+        <button mat-button (click)="go(index() + 1)" [disabled]="index() >= questions().length - 1 || submitting()">Next<mat-icon iconPositionEnd svgIcon="arrow-right"></mat-icon></button>
       </nav>
     }
   </div>

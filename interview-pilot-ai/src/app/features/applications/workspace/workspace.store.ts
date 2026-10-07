@@ -154,6 +154,14 @@ export class WorkspaceStore {
     this.reload();
   }
 
+  applicationDeleted(): void {
+    this.tailoredResume.set(null);
+    this.coverLetter.set(null);
+    const current = this.data();
+    if (current) this.data.set({ ...current, application: null });
+    this.reload();
+  }
+
   download(file: ApplicationDownload): void {
     const application = this.application();
     if (!application || this.task()) return;
@@ -170,7 +178,11 @@ export class WorkspaceStore {
     if (resumeId === null || this.task()) return;
     this.task.set('interview');
     this.interviewService.create({ resumeId, jobDescriptionId: this.jobId, questionCount }).subscribe({
-      next: (interview) => { this.task.set(null); this.router.navigate(['/app/interviews', interview.id]); },
+      next: (interview) => {
+        this.task.set(null);
+        if (interview.reused) this.notifications.info('You already have an interview in progress for this job, so it was opened.');
+        this.router.navigate(['/app/interviews', interview.id]);
+      },
       error: () => this.task.set(null),
     });
   }

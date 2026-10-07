@@ -7,7 +7,7 @@
 
 <section class="card upload" [class.dragging]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
   aria-label="Upload a resume">
-  <mat-icon class="upload-icon" aria-hidden="true">upload_file</mat-icon>
+  <mat-icon class="upload-icon" aria-hidden="true" svgIcon="upload"></mat-icon>
   <div class="upload-text">
     <h2>{{ uploading ? uploadMessage : 'Upload your resume' }}</h2>
     @if (selectedFile) {
@@ -18,7 +18,7 @@
   </div>
   <input #fileInput type="file" hidden accept=".pdf,.doc,.docx" (change)="onFileSelected($event)" />
   <div class="page-actions">
-    <button mat-stroked-button (click)="fileInput.click()" [disabled]="uploading"><mat-icon>attach_file</mat-icon>Browse</button>
+    <button mat-stroked-button (click)="fileInput.click()" [disabled]="uploading"><mat-icon svgIcon="attach"></mat-icon>Browse</button>
     @if (selectedFile) {
       <button mat-flat-button (click)="upload()" [disabled]="uploading">{{ uploading ? 'Uploading…' : 'Upload resume' }}</button>
     }
@@ -39,14 +39,14 @@
     <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
   } @else if (loadError()) {
     <div class="error-state">
-      <mat-icon>cloud_off</mat-icon>
+      <mat-icon svgIcon="offline"></mat-icon>
       <h3>Your resumes could not be loaded</h3>
       <button mat-stroked-button (click)="reload()">Retry</button>
     </div>
   } @else if (resumes$ | async; as resumes) {
     @if (!resumes.length) {
       <div class="empty-state">
-        <mat-icon>description</mat-icon>
+        <mat-icon svgIcon="resume"></mat-icon>
         <h3>No resumes yet</h3>
         <p>Upload your resume above to get started.</p>
       </div>
@@ -72,9 +72,24 @@
                   </span>
                 </td>
                 <td class="cell-actions">
-                  <button mat-icon-button [disabled]="resume.status !== 'PARSED'" [attr.aria-label]="'View ' + resume.originalFileName"
-                    (click)="view(resume)"><mat-icon>visibility</mat-icon></button>
-                  <button mat-icon-button [attr.aria-label]="'Delete ' + resume.originalFileName" (click)="delete(resume)"><mat-icon>delete_outline</mat-icon></button>
+                  <button mat-icon-button matTooltip="View analysis" [disabled]="resume.status !== 'PARSED'" [attr.aria-label]="'View ' + resume.originalFileName"
+                    (click)="view(resume)"><mat-icon svgIcon="eye"></mat-icon></button>
+                  <button mat-icon-button matTooltip="Use for an application" [disabled]="resume.status !== 'PARSED'" [matMenuTriggerFor]="useMenu" (menuOpened)="loadJobs()"
+                    [attr.aria-label]="'Use ' + resume.originalFileName + ' for an application'"><mat-icon svgIcon="application"></mat-icon></button>
+                  <mat-menu #useMenu="matMenu" xPosition="before">
+                    <div class="menu-title subtle" mat-menu-item disabled>Use for application</div>
+                    @if (jobs() === null) {
+                      <div mat-menu-item disabled>Loading…</div>
+                    } @else {
+                      @for (job of jobs(); track job.id) {
+                        <a mat-menu-item [routerLink]="['/app/job-descriptions', job.id, 'workspace', 'tailored-resume']" [queryParams]="{ resumeId: resume.id }">
+                          {{ job.jobTitle }} · {{ job.companyName }}</a>
+                      } @empty {
+                        <a mat-menu-item routerLink="/app/job-descriptions/new"><mat-icon svgIcon="add"></mat-icon>Add a job description first</a>
+                      }
+                    }
+                  </mat-menu>
+                  <button mat-icon-button matTooltip="Delete" [attr.aria-label]="'Delete ' + resume.originalFileName" (click)="delete(resume)"><mat-icon svgIcon="delete"></mat-icon></button>
                 </td>
               </tr>
             }

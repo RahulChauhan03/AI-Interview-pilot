@@ -17,6 +17,7 @@ import com.interviewpilot.exception.InvalidAiResponseException;
 import com.interviewpilot.exception.OllamaUnavailableException;
 import com.interviewpilot.exception.ResourceNotFoundException;
 import com.interviewpilot.interview.dto.InterviewAnswerDto;
+import com.interviewpilot.common.concurrency.KeyedLocks;
 import com.interviewpilot.interview.dto.InterviewRequestDto;
 import com.interviewpilot.interview.dto.InterviewResponseDto;
 import com.interviewpilot.interview.entity.InterviewAnswer;
@@ -71,7 +72,7 @@ class InterviewServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new InterviewServiceImpl(sessionRepository, questionRepository, answerRepository, userRepository,
-                jobDescriptionService, resumeService, interviewGenerationService, answerScoringService, new ObjectMapper());
+                jobDescriptionService, resumeService, interviewGenerationService, answerScoringService, new ObjectMapper(), new KeyedLocks());
     }
 
     @Test
@@ -118,7 +119,7 @@ class InterviewServiceImplTest {
 
         assertThatThrownBy(() -> service.create(new InterviewRequestDto(5L, 10L, 3), OWNER))
                 .isInstanceOf(InvalidAiResponseException.class);
-        verifyNoInteractions(sessionRepository);
+        verify(sessionRepository, never()).save(any());
     }
 
     @Test
@@ -272,5 +273,33 @@ class InterviewServiceImplTest {
     private InterviewQuestion question(InterviewSession session, Long id, int sequence, String text, String category, String difficulty) {
         return InterviewQuestion.builder().id(id).session(session).sequenceNumber(sequence)
                 .question(text).category(category).difficulty(difficulty).answers(new ArrayList<>()).build();
+    }
+
+    @Test
+    void repeatedCreateReturnsTheInterviewInProgressWithoutCallingTheAi() {
+        when(jobDescriptionService.findOwned(10L, OWNER)).thenReturn(jobDescription);
+        InterviewSession inProgress = InterviewSession.builder().id(100L).user(owner).jobDescription(jobDescription)
+                .status("IN_PROGRESS").startedAt(java.time.LocalDateTime.now()).build();
+        when(sessionRepository.findFirstByUserIdAndJobDescriptionIdAndResumeIdAndStatusOrderByCreatedAtDesc(OWNER, 10L, 5L, "IN_PROGRESS"))
+                .thenReturn(java.util.Optional.of(inProgress));
+
+        InterviewResponseDto result = service.create(new InterviewRequestDto(5L, 10L, 5), OWNER);
+
+        assertThat(result.getId()).isEqualTo(100L);
+        assertThat(result.isReused()).isTrue();
+        verifyNoInteractions(interviewGenerationService);
+        verify(sessionRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteRemovesOnlyTheOwnersInterview() {
+        InterviewSession session = InterviewSession.builder().id(100L).user(owner).build();
+        when(sessionRepository.findByIdAndUserId(100L, OWNER)).thenReturn(java.util.Optional.of(session));
+        when(sessionRepository.findByIdAndUserId(100L, OTHER_USER)).thenReturn(java.util.Optional.empty());
+
+        assertThatThrownBy(() -> service.delete(100L, OTHER_USER)).isInstanceOf(ResourceNotFoundException.class);
+        verify(sessionRepository, never()).delete(any());
+        service.delete(100L, OWNER);
+        verify(sessionRepository).delete(session);
     }
 }

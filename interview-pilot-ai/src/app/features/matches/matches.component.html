@@ -9,7 +9,7 @@
   <div class="card"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span></div>
 } @else if (failed()) {
   <div class="card error-state">
-    <mat-icon>cloud_off</mat-icon>
+    <mat-icon svgIcon="offline"></mat-icon>
     <h3>Job matches could not be loaded</h3>
     <button mat-stroked-button (click)="load()">Retry</button>
   </div>
@@ -49,14 +49,14 @@
     <div class="card-header"><h2>History</h2></div>
     @if (!matches().length) {
       <div class="empty-state">
-        <mat-icon>join_inner</mat-icon>
+        <mat-icon svgIcon="match"></mat-icon>
         <h3>No matches yet</h3>
         <p>Run your first analysis above to see your score, strengths and gaps.</p>
       </div>
     } @else {
       <div class="table-wrap">
         <table class="data-table">
-          <thead><tr><th>Job</th><th class="hide-sm">Resume</th><th>Score</th><th class="hide-sm">Date</th></tr></thead>
+          <thead><tr><th>Job</th><th class="hide-sm">Resume</th><th>Score</th><th class="hide-sm">Date</th><th></th></tr></thead>
           <tbody>
             @for (match of matches(); track match.id) {
               <tr>
@@ -67,6 +67,9 @@
                     [class.danger]="matchLabel(match.matchScore).tone === 'low'">{{ match.matchScore | number: '1.0-0' }}% · {{ matchLabel(match.matchScore).label }}</span>
                 </td>
                 <td class="hide-sm">{{ match.createdAt | date: 'MMM d, y' }}</td>
+                <td class="cell-actions">
+                  <button mat-icon-button matTooltip="Delete" [disabled]="deletingId() === match.id" (click)="remove(match)" [attr.aria-label]="'Delete match for ' + match.jobTitle"><mat-icon svgIcon="delete"></mat-icon></button>
+                </td>
               </tr>
             }
           </tbody>

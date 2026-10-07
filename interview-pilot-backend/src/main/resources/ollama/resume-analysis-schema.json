@@ -1,78 +1,270 @@
 {
+  "x-max-output-tokens": 3000,
   "type": "object",
   "properties": {
     "personalInformation": {
       "type": "object",
       "properties": {
-        "firstName": { "type": "string" },
-        "lastName": { "type": "string" },
-        "email": { "type": "string" },
-        "phone": { "type": "string" },
-        "location": { "type": "string" },
-        "linkedIn": { "type": "string" },
-        "github": { "type": "string" },
-        "portfolio": { "type": "string" }
+        "firstName": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "lastName": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "linkedIn": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "github": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "portfolio": {
+          "type": "string",
+          "maxLength": 300
+        }
       },
-      "required": ["firstName", "lastName", "email", "phone", "location", "linkedIn", "github", "portfolio"]
+      "required": [
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "location",
+        "linkedIn",
+        "github",
+        "portfolio"
+      ]
     },
-    "summary": { "type": "string" },
-    "yearsOfExperience": { "type": "string" },
-    "language": { "type": "string" },
+    "summary": {
+      "type": "string",
+      "maxLength": 1200
+    },
+    "yearsOfExperience": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "language": {
+      "type": "string",
+      "maxLength": 300
+    },
     "experience": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "company": { "type": "string" },
-          "designation": { "type": "string" },
-          "duration": { "type": "string" },
-          "location": { "type": "string" },
-          "responsibilities": { "type": "array", "items": { "type": "string" } },
-          "technologies": { "type": "array", "items": { "type": "string" } }
+          "company": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "designation": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "duration": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "responsibilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "maxItems": 40
+          },
+          "technologies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "maxItems": 40
+          }
         },
-        "required": ["company", "designation", "duration", "location", "responsibilities", "technologies"]
-      }
+        "required": [
+          "company",
+          "designation",
+          "duration",
+          "location",
+          "responsibilities",
+          "technologies"
+        ]
+      },
+      "maxItems": 15
     },
     "education": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "institution": { "type": "string" },
-          "degree": { "type": "string" },
-          "fieldOfStudy": { "type": "string" },
-          "duration": { "type": "string" },
-          "grade": { "type": "string" }
+          "institution": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "degree": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "fieldOfStudy": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "duration": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "grade": {
+            "type": "string",
+            "maxLength": 300
+          }
         },
-        "required": ["institution", "degree", "fieldOfStudy", "duration", "grade"]
-      }
+        "required": [
+          "institution",
+          "degree",
+          "fieldOfStudy",
+          "duration",
+          "grade"
+        ]
+      },
+      "maxItems": 15
     },
     "projects": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "name": { "type": "string" },
-          "description": { "type": "string" },
-          "technologies": { "type": "array", "items": { "type": "string" } }
+          "name": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1200
+          },
+          "technologies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "maxItems": 40
+          }
         },
-        "required": ["name", "description", "technologies"]
-      }
+        "required": [
+          "name",
+          "description",
+          "technologies"
+        ]
+      },
+      "maxItems": 15
     },
-    "skills": { "type": "array", "items": { "type": "string" } },
-    "technicalSkills": { "type": "array", "items": { "type": "string" } },
-    "softSkills": { "type": "array", "items": { "type": "string" } },
-    "certifications": { "type": "array", "items": { "type": "string" } },
-    "achievements": { "type": "array", "items": { "type": "string" } },
-    "languages": { "type": "array", "items": { "type": "string" } },
-    "companies": { "type": "array", "items": { "type": "string" } },
-    "designations": { "type": "array", "items": { "type": "string" } },
-    "keywords": { "type": "array", "items": { "type": "string" } }
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "technicalSkills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "softSkills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "achievements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "companies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "designations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 300
+      },
+      "maxItems": 40
+    }
   },
   "required": [
-    "personalInformation", "summary", "yearsOfExperience", "language",
-    "experience", "education", "projects",
-    "skills", "technicalSkills", "softSkills", "certifications", "achievements",
-    "languages", "companies", "designations", "keywords"
+    "personalInformation",
+    "summary",
+    "yearsOfExperience",
+    "language",
+    "experience",
+    "education",
+    "projects",
+    "skills",
+    "technicalSkills",
+    "softSkills",
+    "certifications",
+    "achievements",
+    "languages",
+    "companies",
+    "designations",
+    "keywords"
   ]
 }

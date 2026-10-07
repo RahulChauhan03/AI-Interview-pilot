@@ -4,7 +4,7 @@
     <h1>Activity</h1>
     <p>Recent sign-ups, resume processing, matches and interviews. No resume content, answers or prompts are shown.</p>
   </div>
-  <button mat-stroked-button (click)="load()" [disabled]="loading()"><mat-icon>refresh</mat-icon>Refresh</button>
+  <button mat-stroked-button (click)="load()" [disabled]="loading()"><mat-icon svgIcon="refresh"></mat-icon>Refresh</button>
 </header>
 
 <section class="card">
@@ -16,12 +16,12 @@
     <span class="skeleton"></span><span class="skeleton"></span><span class="skeleton short"></span>
   } @else if (failed()) {
     <div class="error-state">
-      <mat-icon>cloud_off</mat-icon>
+      <mat-icon svgIcon="offline"></mat-icon>
       <h3>Activity could not be loaded</h3>
       <button mat-stroked-button (click)="load()">Retry</button>
     </div>
   } @else if (!visible().length) {
-    <div class="empty-state"><mat-icon>history</mat-icon><h3>No activity</h3></div>
+    <div class="empty-state"><mat-icon svgIcon="history"></mat-icon><h3>No activity</h3></div>
   } @else {
     <div class="table-wrap">
       <table class="data-table">

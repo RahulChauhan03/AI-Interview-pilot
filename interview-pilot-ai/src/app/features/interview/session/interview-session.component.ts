@@ -109,7 +109,7 @@ export class InterviewSessionComponent implements OnInit {
     const unanswered = interview.totalQuestions - interview.answeredQuestions;
     if (unanswered === 0) { this.complete(); return; }
     this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Finish the interview?', message: `${unanswered} question(s) are unanswered and will count as 0.`, confirmLabel: 'Finish' },
+      data: { title: 'Finish the interview?', message: `${unanswered} ${unanswered === 1 ? 'question is' : 'questions are'} unanswered and will count as 0.`, confirmLabel: 'Finish' },
     }).afterClosed().pipe(filter((confirmed): confirmed is true => confirmed === true)).subscribe(() => this.complete());
   }
 

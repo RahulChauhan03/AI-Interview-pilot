@@ -9,7 +9,7 @@
   <div class="card-header"><div><h2>Appearance</h2><p>System follows your device's light or dark setting. Saved on this browser.</p></div></div>
   <mat-button-toggle-group [value]="theme.mode()" (change)="theme.setMode($event.value)" aria-label="Theme" hideSingleSelectionIndicator>
     @for (mode of modes; track mode.value) {
-      <mat-button-toggle [value]="mode.value"><mat-icon aria-hidden="true">{{ mode.icon }}</mat-icon>{{ mode.label }}</mat-button-toggle>
+      <mat-button-toggle [value]="mode.value"><mat-icon aria-hidden="true" [svgIcon]="mode.icon"></mat-icon>{{ mode.label }}</mat-button-toggle>
     }
   </mat-button-toggle-group>
 </section>

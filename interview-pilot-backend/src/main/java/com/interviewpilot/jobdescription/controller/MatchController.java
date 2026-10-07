@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,12 @@ public class MatchController {
     @GetMapping("/{id}")
     public ApiResponse<ResumeMatchResponseDto> get(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         return response("Resume match retrieved", jobDescriptionService.findMatchForUser(id, user.getUserId()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
+        jobDescriptionService.deleteMatch(id, user.getUserId());
+        return response("Resume match deleted", null);
     }
 
     private <T> ApiResponse<T> response(String message, T data) {

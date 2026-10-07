@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,6 +70,12 @@ public class ApplicationController {
     @GetMapping("/applications/{id}")
     public ApiResponse<ApplicationDto> application(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         return response("Application retrieved", applicationService.findByIdForUser(id, user.getUserId()));
+    }
+
+    @DeleteMapping("/applications/{id}")
+    public ApiResponse<Void> deleteApplication(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
+        applicationService.delete(id, user.getUserId());
+        return response("Application deleted", null);
     }
 
     @PatchMapping("/applications/{id}/status")

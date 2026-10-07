@@ -1,7 +1,18 @@
 {
+  "x-max-output-tokens": 900,
   "type": "object",
   "properties": {
-    "paragraphs": { "type": "array", "minItems": 2, "maxItems": 5, "items": { "type": "string" } }
+    "paragraphs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "maxLength": 900
+      }
+    }
   },
-  "required": ["paragraphs"]
+  "required": [
+    "paragraphs"
+  ]
 }

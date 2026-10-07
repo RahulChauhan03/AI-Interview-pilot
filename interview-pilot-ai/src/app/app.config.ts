@@ -4,6 +4,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
+import { provideAppIcons } from './shared/icons/provide-app-icons';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAnimations(),
+    provideAppIcons(),
     provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor, loadingInterceptor])),
   ],
 };

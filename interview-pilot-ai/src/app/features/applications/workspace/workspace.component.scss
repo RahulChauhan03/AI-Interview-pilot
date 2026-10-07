@@ -14,17 +14,56 @@
   }
 }
 
+/*
+ * All six tabs must fit the content width; otherwise Material paginates the bar and scrolls the first tabs out of
+ * view on the left. Tabs are compact, and their icons are dropped where the width is tight.
+ */
+/*
+ * The tab panel and the routed tab component are inline elements by default. A grid inside inline boxes gets its
+ * width only from anonymous block wrapping and can fall back to shrink-to-fit, so the panel is an explicit block
+ * that fills the workspace and is the size container the tab layouts respond to.
+ */
+.workspace-panel {
+  display: block;
+  min-width: 0;
+  container-type: inline-size;
+}
+
 .workspace-tabs {
   margin-bottom: 20px;
   border-bottom: 1px solid var(--app-border);
 
+  .mat-mdc-tab-link {
+    min-width: 0;
+    padding: 0 14px;
+    flex-grow: 0;
+  }
+
   .mat-icon {
-    margin-right: 6px;
+    width: 18px !important;
+    height: 18px !important;
+    margin-right: 7px;
   }
 }
 
-@media (max-width: 760px) {
-  .workspace-tabs .mat-icon {
-    display: none;
+@media (max-width: 1240px) {
+  .workspace-tabs .mat-mdc-tab-link {
+    padding: 0 12px;
+  }
+}
+
+/* Narrow screens: compact tabs wrap onto a second row instead of being cut off. */
+@media (max-width: 1000px) {
+  /* The tab row itself wraps through a global rule in styles.scss (it is inside Material's template). */
+  .workspace-tabs {
+    .mat-icon {
+      display: none !important;
+    }
+
+    .mat-mdc-tab-link {
+      height: 40px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
   }
 }

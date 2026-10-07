@@ -18,6 +18,7 @@ import com.interviewpilot.application.entity.JobApplication;
 import com.interviewpilot.application.repository.ApplicationDocumentRepository;
 import com.interviewpilot.application.repository.JobApplicationRepository;
 import com.interviewpilot.application.service.SkillGapService;
+import com.interviewpilot.common.concurrency.KeyedLocks;
 import com.interviewpilot.exception.ResourceNotFoundException;
 import com.interviewpilot.interview.dto.InterviewQuestionDto;
 import com.interviewpilot.interview.dto.InterviewResponseDto;
@@ -38,6 +39,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceImplTest {
@@ -59,7 +62,8 @@ class ApplicationServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new ApplicationServiceImpl(applicationRepository, documentRepository, jobDescriptionService, resumeService,
-                interviewService, skillGapService, userRepository);
+                interviewService, skillGapService, userRepository, new KeyedLocks(),
+                new TransactionTemplate(org.mockito.Mockito.mock(PlatformTransactionManager.class)));
         job = JobDescription.builder().id(10L).companyName("Acme Fintech").jobTitle("Backend Engineer").jobDescription("Java").build();
         lenient().when(jobDescriptionService.findLatestMatch(eq(10L), any(), eq(OWNER))).thenReturn(Optional.empty());
         lenient().when(interviewService.findAllForJob(10L, OWNER)).thenReturn(List.of());
@@ -88,7 +92,7 @@ class ApplicationServiceImplTest {
         when(jobDescriptionService.findOwned(10L, OWNER)).thenReturn(job);
         when(applicationRepository.findByJobDescriptionIdAndUserId(10L, OWNER)).thenReturn(Optional.of(existing));
         when(jobDescriptionService.findLatestMatch(10L, null, OWNER)).thenReturn(Optional.of(
-                ResumeMatchResponseDto.builder().id(3L).matchScore(81.0).build()));
+                ResumeMatchResponseDto.builder().id(3L).jobDescriptionId(10L).matchScore(81.0).build()));
 
         ApplicationDto result = service.createForJob(10L, null, OWNER);
 
@@ -165,5 +169,37 @@ class ApplicationServiceImplTest {
         assertThat(workspace.getTopics()).isEmpty();
         assertThat(workspace.getRecentQuestions()).containsExactly("Explain transactions in Spring.");
         verify(resumeService, never()).findParsedByIdForUser(anyLong(), anyLong());
+    }
+
+    @Test
+    void listLoadsRelatedDataOnceForAllApplications() {
+        JobDescription other = JobDescription.builder().id(11L).companyName("Globex").jobTitle("Java Developer").jobDescription("Java").build();
+        when(applicationRepository.findByUserIdOrderByUpdatedAtDesc(OWNER)).thenReturn(List.of(
+                JobApplication.builder().id(7L).jobDescription(job).status("APPLIED").build(),
+                JobApplication.builder().id(8L).jobDescription(other).status("SAVED").build()));
+        when(jobDescriptionService.findAllMatchesForUser(OWNER)).thenReturn(List.of(
+                ResumeMatchResponseDto.builder().id(3L).jobDescriptionId(10L).matchScore(72.0).build()));
+        when(interviewService.findAllForUser(OWNER)).thenReturn(List.of(
+                InterviewResponseDto.builder().id(4L).jobDescriptionId(11L).status("COMPLETED").overallScore(64.0).build()));
+        when(documentRepository.findTimestamps(List.of(7L, 8L))).thenReturn(List.of());
+
+        List<ApplicationDto> list = service.findAllForUser(OWNER);
+
+        assertThat(list).extracting(ApplicationDto::getMatchScore).containsExactly(72.0, null);
+        assertThat(list).extracting(ApplicationDto::getLatestInterviewScore).containsExactly(null, 64.0);
+        verify(interviewService, never()).findAllForJob(anyLong(), anyLong());
+        verify(jobDescriptionService, never()).findLatestMatch(anyLong(), any(), anyLong());
+    }
+
+    @Test
+    void deleteRemovesOnlyTheOwnersApplication() {
+        JobApplication application = JobApplication.builder().id(7L).jobDescription(job).status("SAVED").build();
+        when(applicationRepository.findByIdAndUserId(7L, OTHER_USER)).thenReturn(Optional.empty());
+        when(applicationRepository.findByIdAndUserId(7L, OWNER)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> service.delete(7L, OTHER_USER)).isInstanceOf(ResourceNotFoundException.class);
+        verify(applicationRepository, never()).delete(any());
+        service.delete(7L, OWNER);
+        verify(applicationRepository).delete(application);
     }
 }

@@ -17,6 +17,8 @@ public interface JobDescriptionService {
     List<ResumeMatchResponseDto> findMatches(Long id, Long userId);
     /** All matches of the user's job descriptions, newest first. */
     List<ResumeMatchResponseDto> findAllMatchesForUser(Long userId);
+    /** Deletes one of the user's matches; another user's match is "not found". */
+    void deleteMatch(Long matchId, Long userId);
     ResumeMatchResponseDto findMatchForUser(Long matchId, Long userId);
     /** Latest match for this job description: for the given resume, or for any resume when resumeId is null. */
     java.util.Optional<ResumeMatchResponseDto> findLatestMatch(Long id, Long resumeId, Long userId);

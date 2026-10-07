@@ -13,6 +13,8 @@ import { JobDescriptionService } from '../job-description/services/job-descripti
 import { MatchService, matchLabel } from '../matches/services/match.service';
 import { Interview } from '../interview/models/interview.model';
 import { InterviewService } from '../interview/services/interview.service';
+import { JobApplication, SkillGaps, statusInfo } from '../applications/models/application.model';
+import { ApplicationService } from '../applications/services/application.service';
 
 interface NextStep {
   title: string;
@@ -34,6 +36,7 @@ export class DashboardComponent implements OnInit {
   private readonly jobService = inject(JobDescriptionService);
   private readonly matchService = inject(MatchService);
   private readonly interviewService = inject(InterviewService);
+  private readonly applicationService = inject(ApplicationService);
 
   readonly loading = signal(true);
   readonly failed = signal(false);
@@ -41,6 +44,15 @@ export class DashboardComponent implements OnInit {
   readonly jobs = signal<JobDescription[]>([]);
   readonly matches = signal<ResumeMatch[]>([]);
   readonly interviews = signal<Interview[]>([]);
+  readonly applications = signal<JobApplication[]>([]);
+  readonly skillGaps = signal<SkillGaps | null>(null);
+  readonly statusInfo = statusInfo;
+  readonly recentApplications = computed(() => this.applications().slice(0, 5));
+  readonly appliedCount = computed(() => this.applications().filter((a) => a.appliedAt).length);
+  readonly averageMatch = computed(() => {
+    const scores = this.matches().map((match) => match.matchScore);
+    return scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : null;
+  });
 
   readonly greeting = computed(() => {
     const hour = new Date().getHours();
@@ -73,8 +85,12 @@ export class DashboardComponent implements OnInit {
       jobs: this.jobService.list(),
       matches: this.matchService.list(),
       interviews: this.interviewService.list(),
+      applications: this.applicationService.list(),
+      skillGaps: this.applicationService.skillGaps(),
     }).subscribe({
-      next: ({ resumes, jobs, matches, interviews }) => {
+      next: ({ resumes, jobs, matches, interviews, applications, skillGaps }) => {
+        this.applications.set(applications);
+        this.skillGaps.set(skillGaps);
         this.resumes.set(resumes);
         this.jobs.set(jobs);
         this.matches.set(matches);
@@ -89,25 +105,30 @@ export class DashboardComponent implements OnInit {
     const inProgress = this.interviews().find((interview) => interview.status === 'IN_PROGRESS');
     if (inProgress) {
       return { title: 'Finish your interview', text: `You have answered ${inProgress.answeredQuestions} of ${inProgress.totalQuestions} questions for ${inProgress.jobTitle}.`,
-        action: 'Continue interview', link: `/app/interviews/${inProgress.id}`, icon: 'play_circle' };
+        action: 'Continue interview', link: `/app/interviews/${inProgress.id}`, icon: 'play' };
     }
     if (!this.resumes().length) {
       return { title: 'Upload your resume', text: 'Everything starts with your resume: it is used for matching and for interview questions.',
-        action: 'Upload resume', link: '/app/resumes', icon: 'upload_file' };
+        action: 'Upload resume', link: '/app/resumes', icon: 'upload' };
     }
     if (!this.parsedResumes()) {
       return { title: 'Your resume is being analysed', text: 'This usually takes a minute or two. You can add a job description meanwhile.',
-        action: 'Add job description', link: '/app/job-descriptions/new', icon: 'hourglass_top' };
+        action: 'Add job description', link: '/app/job-descriptions/new', icon: 'pending' };
     }
     if (!this.jobs().length) {
       return { title: 'Add a job you are targeting', text: 'Paste a job description to compare it with your resume and practise for it.',
-        action: 'Add job description', link: '/app/job-descriptions/new', icon: 'work_outline' };
+        action: 'Add job description', link: '/app/job-descriptions/new', icon: 'job' };
     }
     if (!this.matches().length) {
       return { title: 'See how well you match', text: 'Compare your resume with a job description to find your strengths and gaps.',
-        action: 'Match resume', link: '/app/matches', icon: 'join_inner' };
+        action: 'Match resume', link: `/app/job-descriptions/${this.jobs()[0].id}/workspace/match`, icon: 'match' };
+    }
+    const unprepared = this.matches().find((match) => !this.applications().some((a) => a.jobDescriptionId === match.jobDescriptionId && a.tailoredResumeAt));
+    if (unprepared) {
+      return { title: `Tailor your resume for ${unprepared.jobTitle}`, text: 'Create a version of your resume and a cover letter for this job, ready to download.',
+        action: 'Tailor resume', link: `/app/job-descriptions/${unprepared.jobDescriptionId}/workspace/tailored-resume`, icon: 'ai' };
     }
     return { title: 'Practise an interview', text: 'Generate questions for your target job and get feedback on every answer.',
-      action: 'Start interview', link: '/app/interviews', icon: 'forum' };
+      action: 'Start interview', link: '/app/interviews', icon: 'interview' };
   }
 }

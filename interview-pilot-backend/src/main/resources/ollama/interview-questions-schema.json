@@ -1,4 +1,5 @@
 {
+  "x-max-output-tokens": 1500,
   "type": "object",
   "properties": {
     "questions": {
@@ -7,13 +8,33 @@
       "items": {
         "type": "object",
         "properties": {
-          "question": { "type": "string" },
-          "category": { "type": "string" },
-          "difficulty": { "type": "string", "enum": ["EASY", "MEDIUM", "HARD"] }
+          "question": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "EASY",
+              "MEDIUM",
+              "HARD"
+            ]
+          }
         },
-        "required": ["question", "category", "difficulty"]
-      }
+        "required": [
+          "question",
+          "category",
+          "difficulty"
+        ]
+      },
+      "maxItems": 10
     }
   },
-  "required": ["questions"]
+  "required": [
+    "questions"
+  ]
 }

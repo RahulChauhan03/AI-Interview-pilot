@@ -26,12 +26,4 @@ export const API_ENDPOINTS = {
     ACTIVITY: 'admin/activity',
     SYSTEM: 'admin/system',
   },
-  INTERVIEW: {
-    START: '/interview/start',
-    HISTORY: '/interview/history',
-  },
-  PROFILE: {
-    GET: '/profile',
-    UPDATE: '/profile',
-  },
 } as const;

@@ -3,6 +3,7 @@ package com.interviewpilot.jobdescription.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interviewpilot.common.concurrency.KeyedLocks;
 import com.interviewpilot.exception.ConflictException;
 import com.interviewpilot.exception.ResourceNotFoundException;
 import com.interviewpilot.interview.repository.InterviewSessionRepository;
@@ -43,13 +44,31 @@ public class JobDescriptionServiceImpl implements JobDescriptionService {
     private final ResumeService resumeService;
     private final ResumeMatchingService resumeMatchingService;
     private final ObjectMapper objectMapper;
+    private final KeyedLocks locks;
 
     @Override
     public JobDescriptionResponseDto create(JobDescriptionRequestDto request, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        JobDescription jobDescription = JobDescription.builder().user(user).build();
-        apply(request, jobDescription);
-        return toDto(jobDescriptionRepository.save(jobDescription));
+        // The same job posted twice (double-click, retry) returns the existing job description.
+        return locks.withLock("job-description:" + userId, () -> {
+            Optional<JobDescription> existing = jobDescriptionRepository
+                    .findByUserIdAndCompanyNameAndJobTitle(userId, request.getCompanyName().trim(), request.getJobTitle().trim()).stream()
+                    .filter(job -> normalized(job.getJobDescription()).equals(normalized(request.getJobDescription())))
+                    .findFirst();
+            if (existing.isPresent()) {
+                log.info("Reusing identical job description: jobDescriptionId={}", existing.get().getId());
+                JobDescriptionResponseDto dto = toDto(existing.get());
+                dto.setReused(true);
+                return dto;
+            }
+            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            JobDescription jobDescription = JobDescription.builder().user(user).build();
+            apply(request, jobDescription);
+            return toDto(jobDescriptionRepository.save(jobDescription));
+        });
+    }
+
+    private static String normalized(String text) {
+        return text == null ? "" : text.trim().replaceAll("\\s+", " ");
     }
 
     @Override
@@ -85,6 +104,11 @@ public class JobDescriptionServiceImpl implements JobDescriptionService {
      */
     @Override
     public ResumeMatchResponseDto matchResume(Long id, Long resumeId, Long userId) {
+        // Repeated or concurrent requests for the same job and resume wait here and then reuse the saved match.
+        return locks.withLock("match:" + userId + ":" + id + ":" + resumeId, () -> analyseOrReuse(id, resumeId, userId));
+    }
+
+    private ResumeMatchResponseDto analyseOrReuse(Long id, Long resumeId, Long userId) {
         JobDescription jobDescription = findOwned(id, userId);
         ParsedResume parsedResume = resumeService.findParsedByIdForUser(resumeId, userId);
         Resume resume = resumeService.findByIdForUser(resumeId, userId);
@@ -132,6 +156,15 @@ public class JobDescriptionServiceImpl implements JobDescriptionService {
         return matchRepository.findByIdAndJobDescriptionUserId(matchId, userId)
                 .map(match -> toMatchDto(match, false))
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+    }
+
+    @Override
+    @Transactional
+    public void deleteMatch(Long matchId, Long userId) {
+        ResumeJobMatch match = matchRepository.findByIdAndJobDescriptionUserId(matchId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+        matchRepository.delete(match);
+        log.info("Resume match deleted: matchId={}", matchId);
     }
 
     @Override

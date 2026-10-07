@@ -48,7 +48,8 @@ export class JobDescriptionFormComponent implements OnInit {
     const save$ = this.editingId === null ? this.jobService.create(request) : this.jobService.update(this.editingId, request);
     save$.subscribe({
       next: (job) => {
-        this.notifications.success(this.editingId === null ? 'Job description saved.' : 'Job description updated.');
+        if (job.reused) this.notifications.info('You already saved this job description, so it was opened instead.');
+        else this.notifications.success(this.editingId === null ? 'Job description saved.' : 'Job description updated.');
         this.router.navigate(['/app/job-descriptions', job.id]);
       },
       error: () => this.saving.set(false),

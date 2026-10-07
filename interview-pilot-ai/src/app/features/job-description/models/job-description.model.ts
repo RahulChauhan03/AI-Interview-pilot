@@ -6,6 +6,8 @@ export interface JobDescription {
   jobDescription: string;
   createdAt: string;
   updatedAt: string | null;
+  /** True when an identical job description already existed and was returned instead of a new one. */
+  reused?: boolean;
 }
 
 export interface JobDescriptionRequest {

@@ -6,8 +6,11 @@ import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { confirmAction } from '../../shared/confirm-dialog.component';
 import { NotificationService } from '../../core/services/notification.service';
 import { ResumeStatus } from '../resume/models/resume-status.enum';
 import { ResumeSummary } from '../resume/models/resume.model';
@@ -17,7 +20,7 @@ import { JobDescriptionService } from '../job-description/services/job-descripti
 import { MatchService, matchLabel } from './services/match.service';
 
 @Component({
-  imports: [RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatProgressBarModule, MatSelectModule],
+  imports: [MatTooltipModule, RouterLink, DatePipe, DecimalPipe, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatProgressBarModule, MatSelectModule],
   templateUrl: './matches.component.html',
   styleUrl: './matches.component.scss',
 })
@@ -28,6 +31,8 @@ export class MatchesComponent implements OnInit {
   private readonly jobService = inject(JobDescriptionService);
   private readonly resumeService = inject(ResumeService);
   private readonly notifications = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
+  readonly deletingId = signal<number | null>(null);
 
   readonly matches = signal<ResumeMatch[]>([]);
   readonly resumes = signal<ResumeSummary[]>([]);
@@ -72,6 +77,21 @@ export class MatchesComponent implements OnInit {
         this.router.navigate(['/app/matches', match.id]);
       },
       error: () => this.analysing.set(false),
+    });
+  }
+
+  remove(match: ResumeMatch): void {
+    confirmAction(this.dialog, { title: 'Delete this match?', confirmLabel: 'Delete',
+      message: `The analysis of ${match.resumeFileName} for "${match.jobTitle}" will be removed.` }).subscribe(() => {
+      this.deletingId.set(match.id);
+      this.matchService.delete(match.id).subscribe({
+        next: () => {
+          this.matches.update((items) => items.filter((item) => item.id !== match.id));
+          this.deletingId.set(null);
+          this.notifications.success('Match deleted.');
+        },
+        error: () => this.deletingId.set(null),
+      });
     });
   }
 }

@@ -1,30 +1,70 @@
 {
+  "x-max-output-tokens": 1800,
   "type": "object",
   "properties": {
-    "summary": { "type": "string" },
-    "skills": { "type": "array", "items": { "type": "string" } },
+    "summary": {
+      "type": "string",
+      "maxLength": 600
+    },
+    "skills": {
+      "type": "array",
+      "maxItems": 30,
+      "items": {
+        "type": "string",
+        "maxLength": 40
+      }
+    },
     "experience": {
       "type": "array",
+      "maxItems": 8,
       "items": {
         "type": "object",
         "properties": {
-          "index": { "type": "integer", "minimum": 0 },
-          "bullets": { "type": "array", "items": { "type": "string" } }
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "bullets": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "maxLength": 220
+            }
+          }
         },
-        "required": ["index", "bullets"]
+        "required": [
+          "index",
+          "bullets"
+        ]
       }
     },
     "projects": {
       "type": "array",
+      "maxItems": 8,
       "items": {
         "type": "object",
         "properties": {
-          "index": { "type": "integer", "minimum": 0 },
-          "description": { "type": "string" }
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 300
+          }
         },
-        "required": ["index", "description"]
+        "required": [
+          "index",
+          "description"
+        ]
       }
     }
   },
-  "required": ["summary", "skills", "experience", "projects"]
+  "required": [
+    "summary",
+    "skills",
+    "experience",
+    "projects"
+  ]
 }

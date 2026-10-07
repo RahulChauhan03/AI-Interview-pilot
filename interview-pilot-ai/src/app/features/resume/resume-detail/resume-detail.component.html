@@ -1,10 +1,10 @@
-<a class="back-link" routerLink="/app/resumes"><mat-icon>arrow_back</mat-icon>Resumes</a>
+<a class="back-link" routerLink="/app/resumes"><mat-icon svgIcon="arrow-left"></mat-icon>Resumes</a>
 
 @if (loading()) {
   <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span><span class="skeleton"></span></div>
 } @else if (failed()) {
   <div class="card error-state">
-    <mat-icon>error_outline</mat-icon>
+    <mat-icon svgIcon="error"></mat-icon>
     <h3>This resume could not be loaded</h3>
     <p>It may have been deleted.</p>
     <button mat-stroked-button (click)="load()">Retry</button>
@@ -16,12 +16,13 @@
       <p>{{ resume.originalFileName }} · uploaded {{ resume.uploadTime | date: 'MMM d, y' }}
         @if (resume.processingTime) { · analysed in {{ resume.processingTime / 1000 | number: '1.0-0' }}s }</p>
     </div>
-    <a mat-flat-button routerLink="/app/matches"><mat-icon>join_inner</mat-icon>Match with a job</a>
+    <a mat-flat-button routerLink="/app/matches"><mat-icon svgIcon="match"></mat-icon>Match with a job</a>
   </header>
 
   @if (parsed(); as parsed) {
     <div class="layout">
       <aside class="stack">
+        <app-ats-score-card [resume]="parsed" />
         <section class="card">
           <h2>Profile</h2>
           <dl>
@@ -105,7 +106,7 @@
     </div>
   } @else {
     <div class="card empty-state">
-      <mat-icon>{{ resume.status === 'FAILED' ? 'error_outline' : 'hourglass_top' }}</mat-icon>
+      <mat-icon [svgIcon]="resume.status === 'FAILED' ? 'error' : 'pending'"></mat-icon>
       <h3>{{ resume.status === 'FAILED' ? 'This resume could not be analysed' : 'This resume is still being analysed' }}</h3>
       <p>{{ resume.status === 'FAILED' ? 'Try uploading it again.' : 'Come back in a minute or two.' }}</p>
     </div>

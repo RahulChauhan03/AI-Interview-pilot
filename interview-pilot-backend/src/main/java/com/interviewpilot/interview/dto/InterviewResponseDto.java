@@ -32,4 +32,6 @@ public class InterviewResponseDto {
     private Long nextQuestionId;
     /** Only included when a single interview is requested. */
     private List<InterviewQuestionDto> questions;
+    /** True when an equivalent existing record was returned instead of creating a new one. */
+    private boolean reused;
 }

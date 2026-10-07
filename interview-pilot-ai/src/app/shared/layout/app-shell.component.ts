@@ -18,23 +18,25 @@ interface NavItem {
 }
 
 const APP_NAV: NavItem[] = [
-  { label: 'Dashboard', icon: 'space_dashboard', link: '/app/dashboard' },
-  { label: 'Resumes', icon: 'description', link: '/app/resumes' },
-  { label: 'Job descriptions', icon: 'work_outline', link: '/app/job-descriptions' },
-  { label: 'Job matches', icon: 'join_inner', link: '/app/matches' },
-  { label: 'Interviews', icon: 'forum', link: '/app/interviews' },
+  { label: 'Dashboard', icon: 'dashboard', link: '/app/dashboard' },
+  { label: 'Resumes', icon: 'resume', link: '/app/resumes' },
+  { label: 'Job descriptions', icon: 'job', link: '/app/job-descriptions' },
+  { label: 'Applications', icon: 'application', link: '/app/applications' },
+  { label: 'Job matches', icon: 'match', link: '/app/matches' },
+  { label: 'Interviews', icon: 'interview', link: '/app/interviews' },
+  { label: 'Skill gaps', icon: 'skills', link: '/app/skill-gaps' },
 ];
 const APP_ACCOUNT_NAV: NavItem[] = [
-  { label: 'Profile', icon: 'person_outline', link: '/app/profile' },
+  { label: 'Profile', icon: 'profile', link: '/app/profile' },
   { label: 'Settings', icon: 'settings', link: '/app/settings' },
 ];
 const ADMIN_NAV: NavItem[] = [
-  { label: 'Dashboard', icon: 'monitoring', link: '/admin/dashboard' },
-  { label: 'Users', icon: 'group', link: '/admin/users' },
+  { label: 'Dashboard', icon: 'analytics', link: '/admin/dashboard' },
+  { label: 'Users', icon: 'users', link: '/admin/users' },
   { label: 'Activity', icon: 'history', link: '/admin/activity' },
 ];
 const ADMIN_ACCOUNT_NAV: NavItem[] = [
-  { label: 'Profile', icon: 'person_outline', link: '/admin/profile' },
+  { label: 'Profile', icon: 'profile', link: '/admin/profile' },
   { label: 'Settings', icon: 'settings', link: '/admin/settings' },
 ];
 

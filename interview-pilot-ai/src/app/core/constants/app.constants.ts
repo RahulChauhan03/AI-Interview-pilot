@@ -1,5 +1,5 @@
 export const APP_CONSTANTS = {
-  appName: 'Interview Pilot AI',
+  appName: 'HireFlow',
   defaultRoute: '/dashboard',
   loginRoute: '/login',
   unauthenticatedFallbackRoute: '/login',

@@ -1,10 +1,10 @@
-<a class="back-link" routerLink="/app/job-descriptions"><mat-icon>arrow_back</mat-icon>Job descriptions</a>
+<a class="back-link" routerLink="/app/job-descriptions"><mat-icon svgIcon="arrow-left"></mat-icon>Job descriptions</a>
 
 @if (store.loading()) {
   <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span></div>
 } @else if (store.failed()) {
   <div class="card error-state">
-    <mat-icon>error_outline</mat-icon>
+    <mat-icon svgIcon="error"></mat-icon>
     <h3>This workspace could not be loaded</h3>
     <p>The job description may have been deleted, or the server is not reachable.</p>
     <button mat-stroked-button (click)="reload()">Retry</button>
@@ -33,20 +33,20 @@
     <div class="page-actions">
       @if (store.application()?.tailoredResumeAt || store.application()?.coverLetterAt) {
         <button mat-stroked-button (click)="store.download('package')" [disabled]="!!store.task()">
-          <mat-icon>folder_zip</mat-icon>Download package</button>
+          <mat-icon svgIcon="package"></mat-icon>Download package</button>
       }
-      <button mat-icon-button [matMenuTriggerFor]="more" aria-label="More actions"><mat-icon>more_vert</mat-icon></button>
+      <button mat-icon-button matTooltip="More actions" [matMenuTriggerFor]="more" aria-label="More actions"><mat-icon svgIcon="more"></mat-icon></button>
       <mat-menu #more="matMenu" xPosition="before">
-        <a mat-menu-item [routerLink]="['/app/job-descriptions', job.id, 'edit']"><mat-icon>edit</mat-icon>Edit job description</a>
-        <button mat-menu-item (click)="remove()"><mat-icon>delete_outline</mat-icon>Delete job description</button>
+        <a mat-menu-item [routerLink]="['/app/job-descriptions', job.id, 'edit']"><mat-icon svgIcon="edit"></mat-icon>Edit job description</a>
+        <button mat-menu-item (click)="remove()"><mat-icon svgIcon="delete"></mat-icon>Delete job description</button>
       </mat-menu>
     </div>
   </header>
 
-  <nav mat-tab-nav-bar [tabPanel]="panel" class="workspace-tabs" aria-label="Workspace sections">
+  <nav mat-tab-nav-bar mat-stretch-tabs="false" [disablePagination]="true" [tabPanel]="panel" class="workspace-tabs" aria-label="Workspace sections">
     @for (tab of tabs; track tab.path) {
       <a mat-tab-link [routerLink]="tab.path" queryParamsHandling="preserve" routerLinkActive #active="routerLinkActive" [active]="active.isActive">
-        <mat-icon aria-hidden="true">{{ tab.icon }}</mat-icon>{{ tab.label }}</a>
+        <mat-icon aria-hidden="true" [svgIcon]="tab.icon"></mat-icon>{{ tab.label }}</a>
     }
   </nav>
   <mat-tab-nav-panel #panel class="workspace-panel"><router-outlet /></mat-tab-nav-panel>

@@ -1,6 +1,10 @@
+import { MatDialog } from '@angular/material/dialog';
+import { switchMap } from 'rxjs';
+import { NotificationService } from '../../../core/services/notification.service';
+import { confirmAction } from '../../../shared/confirm-dialog.component';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe, TitleCasePipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AnswerFeedbackComponent } from '../components/answer-feedback/answer-feedback.component';
@@ -19,6 +23,9 @@ interface CategoryScore {
   styleUrl: './interview-result.component.scss',
 })
 export class InterviewResultComponent implements OnInit {
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly notifications = inject(NotificationService);
   private readonly interviewService = inject(InterviewService);
   private readonly id = Number(inject(ActivatedRoute).snapshot.paramMap.get('id'));
 
@@ -68,5 +75,12 @@ export class InterviewResultComponent implements OnInit {
 
   label(category: string): string {
     return category.replace(/_/g, ' ');
+  }
+
+  remove(): void {
+    confirmAction(this.dialog, { title: 'Delete this interview?', confirmLabel: 'Delete',
+      message: 'Its questions, answers and scores will be removed.' })
+      .pipe(switchMap(() => this.interviewService.delete(this.id)))
+      .subscribe({ next: () => { this.notifications.success('Interview deleted.'); this.router.navigateByUrl('/app/interviews'); } });
   }
 }

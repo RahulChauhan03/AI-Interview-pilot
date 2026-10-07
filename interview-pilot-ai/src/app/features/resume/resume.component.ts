@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscription, filter, switchMap, timer, withLatestFrom } from 'rxjs';
@@ -13,9 +15,11 @@ import { ResumeMapper } from './resume.mapper';
 import { ResumeStatus } from './models/resume-status.enum';
 import { ResumeSummary } from './models/resume.model';
 import { ResumeService } from './services/resume.service';
+import { JobDescription } from '../job-description/models/job-description.model';
+import { JobDescriptionService } from '../job-description/services/job-description.service';
 
 @Component({
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressBarModule, MatProgressSpinnerModule],
+  imports: [MatTooltipModule, CommonModule, RouterLink, MatMenuModule, MatButtonModule, MatIconModule, MatProgressBarModule, MatProgressSpinnerModule],
   templateUrl: './resume.component.html',
   styleUrl: './resume.component.scss',
 })
@@ -25,6 +29,10 @@ export class ResumeComponent implements OnInit, OnDestroy {
   private readonly notifications = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+  private readonly jobService = inject(JobDescriptionService);
+
+  /** Target jobs for "Use for application"; loaded when the menu is first opened. */
+  readonly jobs = signal<JobDescription[] | null>(null);
   private pollingSubscription?: Subscription;
   readonly loaded = signal(false);
   readonly loadError = signal(false);
@@ -47,6 +55,10 @@ export class ResumeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void { this.pollingSubscription?.unsubscribe(); }
+
+  loadJobs(): void {
+    if (this.jobs() === null) this.jobService.list().subscribe({ next: (jobs) => this.jobs.set(jobs), error: () => this.jobs.set([]) });
+  }
 
   reload(): void {
     this.loadError.set(false);

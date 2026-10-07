@@ -154,4 +154,17 @@ class ApplicationControllerTest {
                 .andExpect(status().isServiceUnavailable());
         verify(documentService).generateCoverLetter(7L, 5L, 1L);
     }
+
+    @Test
+    void deleteApplicationChecksOwnership() throws Exception {
+        org.mockito.Mockito.doThrow(new ResourceNotFoundException("Application not found")).when(applicationService).delete(7L, 2L);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/applications/7").with(user(OTHER_USER)))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/applications/7").with(user(OWNER)))
+                .andExpect(status().isOk());
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/applications/7"))
+                .andExpect(status().isUnauthorized());
+        verify(applicationService).delete(7L, 1L);
+    }
 }

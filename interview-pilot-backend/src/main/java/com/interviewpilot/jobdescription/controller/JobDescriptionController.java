@@ -34,6 +34,9 @@ public class JobDescriptionController {
     public ResponseEntity<ApiResponse<JobDescriptionResponseDto>> create(
             @Valid @RequestBody JobDescriptionRequestDto request, @AuthenticationPrincipal CustomUserDetails user) {
         JobDescriptionResponseDto data = jobDescriptionService.create(request, user.getUserId());
+        if (data.isReused()) {
+            return ResponseEntity.ok(response(HttpStatus.OK, "Identical job description already exists", data));
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(response(HttpStatus.CREATED, "Job description created", data));
     }
 

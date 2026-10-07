@@ -16,6 +16,10 @@ export class MatchService {
   get(id: number): Observable<ResumeMatch> {
     return this.api.get<ResumeMatch>(`${API_ENDPOINTS.MATCHES}/${id}`);
   }
+
+  delete(id: number): Observable<void> {
+    return this.api.delete<void>(`${API_ENDPOINTS.MATCHES}/${id}`);
+  }
 }
 
 /** Shared wording for a 0-100 match score. */

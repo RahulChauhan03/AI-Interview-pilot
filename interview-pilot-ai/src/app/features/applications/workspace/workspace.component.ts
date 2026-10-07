@@ -6,6 +6,7 @@ import { filter, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -17,7 +18,7 @@ import { WorkspaceStore } from './workspace.store';
 
 /** One job description as an application workspace: header plus tabs (child routes) that share WorkspaceStore. */
 @Component({
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, DecimalPipe, MatButtonModule, MatIconModule, MatMenuModule, MatTabsModule],
+  imports: [MatTooltipModule, RouterLink, RouterLinkActive, RouterOutlet, DecimalPipe, MatButtonModule, MatIconModule, MatMenuModule, MatTabsModule],
   providers: [WorkspaceStore],
   templateUrl: './workspace.component.html',
   styleUrl: './workspace.component.scss',
@@ -31,12 +32,12 @@ export class WorkspaceComponent {
   private readonly dialog = inject(MatDialog);
 
   readonly tabs = [
-    { path: 'overview', label: 'Overview', icon: 'dashboard' },
-    { path: 'match', label: 'Match', icon: 'join_inner' },
-    { path: 'tailored-resume', label: 'Tailored resume', icon: 'description' },
-    { path: 'cover-letter', label: 'Cover letter', icon: 'mail_outline' },
-    { path: 'interview-prep', label: 'Interview prep', icon: 'forum' },
-    { path: 'application', label: 'Application', icon: 'work_history' },
+    { path: 'overview', label: 'Overview', icon: 'checklist' },
+    { path: 'match', label: 'Match', icon: 'match' },
+    { path: 'tailored-resume', label: 'Tailored resume', icon: 'tailored-resume' },
+    { path: 'cover-letter', label: 'Cover letter', icon: 'cover-letter' },
+    { path: 'interview-prep', label: 'Interview prep', icon: 'interview' },
+    { path: 'application', label: 'Application', icon: 'application' },
   ];
   readonly matchLabel = matchLabel;
   readonly statusInfo = statusInfo;

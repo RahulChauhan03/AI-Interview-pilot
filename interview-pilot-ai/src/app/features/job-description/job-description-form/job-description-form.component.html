@@ -1,4 +1,4 @@
-<a class="back-link" [routerLink]="editingId === null ? '/app/job-descriptions' : ['/app/job-descriptions', editingId]"><mat-icon>arrow_back</mat-icon>Back</a>
+<a class="back-link" [routerLink]="editingId === null ? '/app/job-descriptions' : ['/app/job-descriptions', editingId]"><mat-icon svgIcon="arrow-left"></mat-icon>Back</a>
 <header class="page-header">
   <div>
     <h1>{{ editingId === null ? 'New job description' : 'Edit job description' }}</h1>

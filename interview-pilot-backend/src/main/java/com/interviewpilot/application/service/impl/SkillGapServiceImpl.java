@@ -77,14 +77,17 @@ public class SkillGapServiceImpl implements SkillGapService {
         Map<String, Skill> strong = new HashMap<>();
         Map<String, Skill> missing = new HashMap<>();
         Map<Long, Optional<ResumeFacts>> resumes = new HashMap<>();
-        List<InterviewResponseDto> allInterviews = new ArrayList<>();
+        // One query each for matches and interviews instead of two per job description.
+        Map<Long, ResumeMatchResponseDto> latestMatches = new HashMap<>();
+        jobDescriptionService.findAllMatchesForUser(userId) // newest first
+                .forEach(match -> latestMatches.putIfAbsent(match.getJobDescriptionId(), match));
+        List<InterviewResponseDto> allInterviews = interviewService.findAllWithQuestionsForUser(userId).stream()
+                .filter(interview -> interview.getJobDescriptionId() != null).toList();
 
         for (JobDescriptionResponseDto job : jobDescriptionService.findAllForUser(userId)) {
-            ResumeMatchResponseDto match = jobDescriptionService.findLatestMatch(job.getId(), null, userId).orElse(null);
+            ResumeMatchResponseDto match = latestMatches.get(job.getId());
             ResumeFacts resume = match == null ? null
                     : resumes.computeIfAbsent(match.getResumeId(), id -> facts(id, userId)).orElse(null);
-            List<InterviewResponseDto> interviews = interviewService.findAllForJob(job.getId(), userId);
-            allInterviews.addAll(interviews);
             SkillGapDto gaps = forJob(job, resume, match, List.of()); // interview categories are combined below
             gaps.strong().forEach(skill -> count(strong, skill.name()));
             gaps.missing().forEach(skill -> count(missing, skill.name()));

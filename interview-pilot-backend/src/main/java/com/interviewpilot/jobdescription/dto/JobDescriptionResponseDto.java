@@ -20,4 +20,6 @@ public class JobDescriptionResponseDto {
     private String jobDescription;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    /** True when an equivalent existing record was returned instead of creating a new one. */
+    private boolean reused;
 }

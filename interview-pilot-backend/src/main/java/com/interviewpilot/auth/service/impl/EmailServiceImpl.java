@@ -38,7 +38,7 @@ public class EmailServiceImpl implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, StandardCharsets.UTF_8.name());
             helper.setFrom(senderEmail);
             helper.setTo(user.getEmail());
-            helper.setSubject("Reset your Interview Pilot password");
+            helper.setSubject("Reset your HireFlow password");
             helper.setText(emailBody(user.getFirstName(), resetUrl, expirationMinutes), true);
             mailSender.send(message);
         } catch (Exception exception) {
@@ -53,6 +53,6 @@ public class EmailServiceImpl implements EmailService {
                 + "<p><a href=\"" + HtmlUtils.htmlEscape(resetUrl) + "\">Reset Password</a></p>"
                 + "<p>This link will expire in " + expirationMinutes + " minutes.</p>"
                 + "<p>If you did not request a password reset, you can safely ignore this email.</p>"
-                + "<p>Regards,<br>Interview Pilot Team</p>";
+                + "<p>Regards,<br>The HireFlow team</p>";
     }
 }

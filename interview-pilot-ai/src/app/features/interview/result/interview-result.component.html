@@ -1,17 +1,17 @@
-<a class="back-link" routerLink="/app/interviews"><mat-icon>arrow_back</mat-icon>Interviews</a>
+<a class="back-link" routerLink="/app/interviews"><mat-icon svgIcon="arrow-left"></mat-icon>Interviews</a>
 
 @if (loading()) {
   <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span></div>
 } @else if (failed()) {
   <div class="card error-state">
-    <mat-icon>error_outline</mat-icon>
+    <mat-icon svgIcon="error"></mat-icon>
     <h3>These results could not be loaded</h3>
     <button mat-stroked-button (click)="load()">Retry</button>
   </div>
 } @else if (interview(); as interview) {
   @if (interview.status !== 'COMPLETED') {
     <div class="card empty-state">
-      <mat-icon>hourglass_top</mat-icon>
+      <mat-icon svgIcon="pending"></mat-icon>
       <h3>This interview is not finished yet</h3>
       <p>Results are available once you finish the interview.</p>
       <a mat-flat-button [routerLink]="['/app/interviews', interview.id]">Continue interview</a>
@@ -23,8 +23,11 @@
         <h1>{{ interview.jobTitle }} · {{ interview.companyName }}</h1>
         <p>Completed {{ interview.completedAt | date: 'MMM d, y, h:mm a' }} · {{ interview.answeredQuestions }} of {{ interview.totalQuestions }} questions answered</p>
       </div>
-      <a mat-flat-button routerLink="/app/interviews" [queryParams]="{ resumeId: interview.resumeId, jobDescriptionId: interview.jobDescriptionId }">
-        <mat-icon>replay</mat-icon>Practise again</a>
+      <div class="page-actions">
+        <button mat-stroked-button (click)="remove()"><mat-icon svgIcon="delete"></mat-icon>Delete</button>
+        <a mat-flat-button routerLink="/app/interviews" [queryParams]="{ resumeId: interview.resumeId, jobDescriptionId: interview.jobDescriptionId }">
+          <mat-icon svgIcon="retry"></mat-icon>Practise again</a>
+      </div>
     </header>
 
     <section class="card overall">

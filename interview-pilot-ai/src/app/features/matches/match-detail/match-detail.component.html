@@ -1,10 +1,10 @@
-<a class="back-link" routerLink="/app/matches"><mat-icon>arrow_back</mat-icon>Job matches</a>
+<a class="back-link" routerLink="/app/matches"><mat-icon svgIcon="arrow-left"></mat-icon>Job matches</a>
 
 @if (loading()) {
   <div class="card"><span class="skeleton short"></span><span class="skeleton tall"></span></div>
 } @else if (failed()) {
   <div class="card error-state">
-    <mat-icon>error_outline</mat-icon>
+    <mat-icon svgIcon="error"></mat-icon>
     <h3>This match could not be loaded</h3>
     <button mat-stroked-button (click)="load()">Retry</button>
   </div>
@@ -15,9 +15,12 @@
       <p>{{ match.resumeFileName }} · analysed {{ match.createdAt | date: 'MMM d, y, h:mm a' }}</p>
     </div>
     <div class="page-actions">
-      <a mat-stroked-button [routerLink]="['/app/job-descriptions', match.jobDescriptionId]">View job</a>
+      <button mat-stroked-button (click)="remove()"><mat-icon svgIcon="delete"></mat-icon>Delete</button>
+      <a mat-stroked-button [routerLink]="['/app/job-descriptions', match.jobDescriptionId, 'workspace']">Open workspace</a>
+      <a mat-stroked-button [routerLink]="['/app/job-descriptions', match.jobDescriptionId, 'workspace', 'tailored-resume']" [queryParams]="{ resumeId: match.resumeId }">
+        <mat-icon svgIcon="ai"></mat-icon>Tailor resume</a>
       <a mat-flat-button routerLink="/app/interviews" [queryParams]="{ resumeId: match.resumeId, jobDescriptionId: match.jobDescriptionId }">
-        <mat-icon>forum</mat-icon>Practise for this job</a>
+        <mat-icon svgIcon="interview"></mat-icon>Practise for this job</a>
     </div>
   </header>
 
@@ -33,13 +36,13 @@
 
   <div class="grid-2">
     <section class="card">
-      <h2><mat-icon aria-hidden="true">check_circle</mat-icon>Requirements you meet</h2>
+      <h2><mat-icon aria-hidden="true" svgIcon="success"></mat-icon>Requirements you meet</h2>
       @if (match.strengths.length) {
         <div class="tag-list">@for (item of match.strengths; track $index) { <span class="tag">{{ item }}</span> }</div>
       } @else { <p class="muted">None identified.</p> }
     </section>
     <section class="card">
-      <h2><mat-icon aria-hidden="true">error_outline</mat-icon>Gaps</h2>
+      <h2><mat-icon aria-hidden="true" svgIcon="error"></mat-icon>Gaps</h2>
       @if (match.missingSkills.length) {
         <div class="tag-list">@for (item of match.missingSkills; track $index) { <span class="tag danger">{{ item }}</span> }</div>
       } @else { <p class="muted">No missing skills identified.</p> }
@@ -47,7 +50,7 @@
   </div>
 
   <section class="card">
-    <h2><mat-icon aria-hidden="true">lightbulb</mat-icon>Recommendations</h2>
+    <h2><mat-icon aria-hidden="true" svgIcon="tip"></mat-icon>Recommendations</h2>
     @if (match.recommendations.length) {
       <ul>@for (item of match.recommendations; track $index) { <li>{{ item }}</li> }</ul>
     } @else { <p class="muted">No recommendations.</p> }

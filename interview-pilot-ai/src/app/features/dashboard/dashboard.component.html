@@ -1,19 +1,19 @@
 <header class="page-header">
   <div>
-    <h1>{{ greeting() }} 👋</h1>
+    <h1>{{ greeting() }}</h1>
     <p>Here is where your interview preparation stands.</p>
   </div>
   <div class="page-actions">
-    <a mat-stroked-button routerLink="/app/resumes"><mat-icon>upload_file</mat-icon>Upload resume</a>
-    <a mat-stroked-button routerLink="/app/job-descriptions/new"><mat-icon>add</mat-icon>Add job description</a>
-    <a mat-stroked-button routerLink="/app/matches"><mat-icon>join_inner</mat-icon>Match resume</a>
-    <a mat-flat-button routerLink="/app/interviews"><mat-icon>forum</mat-icon>Start interview</a>
+    <a mat-stroked-button routerLink="/app/resumes"><mat-icon svgIcon="upload"></mat-icon>Upload resume</a>
+    <a mat-stroked-button routerLink="/app/job-descriptions/new"><mat-icon svgIcon="add"></mat-icon>Add job description</a>
+    <a mat-stroked-button routerLink="/app/matches"><mat-icon svgIcon="match"></mat-icon>Match resume</a>
+    <a mat-flat-button routerLink="/app/interviews"><mat-icon svgIcon="interview"></mat-icon>Start interview</a>
   </div>
 </header>
 
 @if (failed()) {
   <div class="card error-state">
-    <mat-icon>cloud_off</mat-icon>
+    <mat-icon svgIcon="offline"></mat-icon>
     <h3>Your dashboard could not be loaded</h3>
     <p>Check that the server is running, then try again.</p>
     <button mat-stroked-button (click)="load()">Retry</button>
@@ -26,22 +26,22 @@
       }
     } @else {
       <div class="stat">
-        <div class="stat-label">Resumes</div>
-        <div class="stat-value">{{ resumes().length }}</div>
-        <div class="stat-hint">{{ parsedResumes() }} ready to use</div>
+        <div class="stat-top"><div class="stat-label">Applications</div><span class="stat-icon"><mat-icon svgIcon="application"></mat-icon></span></div>
+        <div class="stat-value">{{ applications().length }}</div>
+        <div class="stat-hint">{{ appliedCount() }} applied</div>
       </div>
       <div class="stat">
-        <div class="stat-label">Job matches</div>
-        <div class="stat-value">{{ matches().length }}</div>
-        <div class="stat-hint">{{ bestMatch() === null ? 'No matches yet' : 'Best ' + (bestMatch() | number: '1.0-0') + '%' }}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Interviews</div>
+        <div class="stat-top"><div class="stat-label">Interviews</div><span class="stat-icon violet"><mat-icon svgIcon="interview"></mat-icon></span></div>
         <div class="stat-value">{{ interviews().length }}</div>
         <div class="stat-hint">{{ completedInterviews().length }} completed</div>
       </div>
       <div class="stat">
-        <div class="stat-label">Average interview score</div>
+        <div class="stat-top"><div class="stat-label">Average match</div><span class="stat-icon green"><mat-icon svgIcon="match"></mat-icon></span></div>
+        <div class="stat-value">{{ averageMatch() === null ? '–' : (averageMatch() | number: '1.0-0') + '%' }}</div>
+        <div class="stat-hint">{{ averageMatch() === null ? 'No matches yet' : matches().length + (matches().length === 1 ? ' match' : ' matches') }}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-top"><div class="stat-label">Average interview score</div><span class="stat-icon amber"><mat-icon svgIcon="score"></mat-icon></span></div>
         <div class="stat-value">{{ averageScore() === null ? '–' : (averageScore() | number: '1.0-0') }}</div>
         <div class="stat-hint">{{ averageScore() === null ? 'Complete an interview to see it' : 'out of 100' }}</div>
       </div>
@@ -50,7 +50,7 @@
 
   @if (!loading()) {
     <section class="card next-step">
-      <mat-icon class="next-icon" aria-hidden="true">{{ nextStep().icon }}</mat-icon>
+      <mat-icon class="next-icon" aria-hidden="true" [svgIcon]="nextStep().icon"></mat-icon>
       <div>
         <p class="eyebrow">Recommended next step</p>
         <h2>{{ nextStep().title }}</h2>
@@ -59,11 +59,36 @@
       <a mat-flat-button [routerLink]="nextStep().link">{{ nextStep().action }}</a>
     </section>
 
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-header"><h2>Recent applications</h2><a routerLink="/app/applications" class="subtle">All →</a></div>
+        @for (a of recentApplications(); track a.id) {
+          <div class="app-row">
+            <div><a [routerLink]="['/app/job-descriptions', a.jobDescriptionId, 'workspace']">{{ a.jobTitle }}</a><span class="subtle">{{ a.companyName }}</span></div>
+            <span [class]="'pill ' + statusInfo(a.status).tone">{{ statusInfo(a.status).label }}</span>
+          </div>
+        } @empty {
+          <p class="muted">No applications yet. Open a job description to tailor your resume and track it.</p>
+        }
+      </section>
+      <section class="card">
+        <div class="card-header"><h2>Top skill gaps</h2><a routerLink="/app/skill-gaps" class="subtle">All →</a></div>
+        @if (skillGaps()?.missing?.length || skillGaps()?.developing?.length) {
+          <div class="tag-list">
+            @for (s of skillGaps()!.missing.slice(0, 6); track s.name) { <span class="tag danger">{{ s.name }} · {{ s.jobs }} {{ s.jobs === 1 ? 'job' : 'jobs' }}</span> }
+            @for (s of skillGaps()!.developing.slice(0, 3); track s.name) { <span class="tag">{{ s.name }} · {{ s.score | number: '1.0-0' }}/100</span> }
+          </div>
+        } @else {
+          <p class="muted">Match your resume with a job and practise an interview to see your gaps.</p>
+        }
+      </section>
+    </div>
+
     <section class="card">
       <div class="card-header"><h2>Recent activity</h2></div>
       <ul class="activity">
         <li>
-          <mat-icon aria-hidden="true">description</mat-icon>
+          <mat-icon aria-hidden="true" svgIcon="resume"></mat-icon>
           @if (latestResume(); as resume) {
             <div>
               <a [routerLink]="['/app/resumes', resume.id]">{{ resume.originalFileName }}</a>
@@ -76,7 +101,7 @@
           }
         </li>
         <li>
-          <mat-icon aria-hidden="true">join_inner</mat-icon>
+          <mat-icon aria-hidden="true" svgIcon="match"></mat-icon>
           @if (latestMatch(); as match) {
             <div>
               <a [routerLink]="['/app/matches', match.id]">{{ match.jobTitle }} · {{ match.companyName }}</a>
@@ -90,7 +115,7 @@
           }
         </li>
         <li>
-          <mat-icon aria-hidden="true">forum</mat-icon>
+          <mat-icon aria-hidden="true" svgIcon="interview"></mat-icon>
           @if (latestInterview(); as interview) {
             <div>
               <a [routerLink]="interview.status === 'COMPLETED' ? ['/app/interviews', interview.id, 'result'] : ['/app/interviews', interview.id]">

@@ -1,10 +1,41 @@
 {
+  "x-max-output-tokens": 700,
   "type": "object",
   "properties": {
-    "matchScore": { "type": "integer", "minimum": 0, "maximum": 100 },
-    "strengths": { "type": "array", "items": { "type": "string" } },
-    "missingSkills": { "type": "array", "items": { "type": "string" } },
-    "recommendations": { "type": "array", "items": { "type": "string" } }
+    "strengths": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "string",
+        "maxLength": 160
+      }
+    },
+    "missingSkills": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "maxLength": 80
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      }
+    },
+    "matchScore": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    }
   },
-  "required": ["matchScore", "strengths", "missingSkills", "recommendations"]
+  "required": [
+    "strengths",
+    "missingSkills",
+    "recommendations",
+    "matchScore"
+  ]
 }

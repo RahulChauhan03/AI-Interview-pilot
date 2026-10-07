@@ -16,7 +16,6 @@ import com.interviewpilot.jobdescription.dto.ResumeMatchResponseDto;
 import com.interviewpilot.jobdescription.service.JobDescriptionService;
 import com.interviewpilot.resume.service.ResumeService;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -80,15 +79,12 @@ class SkillGapServiceImplTest {
     @Test
     void overallCountsGapsAcrossJobs() {
         when(jobDescriptionService.findAllForUser(OWNER)).thenReturn(List.of(job(10, "Java and AWS"), job(11, "AWS and Docker"), job(12, "Go")));
-        when(jobDescriptionService.findLatestMatch(10L, null, OWNER)).thenReturn(Optional.of(ResumeMatchResponseDto.builder()
-                .resumeId(5L).missingSkills(List.of("AWS")).build()));
-        when(jobDescriptionService.findLatestMatch(11L, null, OWNER)).thenReturn(Optional.of(ResumeMatchResponseDto.builder()
-                .resumeId(5L).missingSkills(List.of("aws", "Docker")).build()));
-        when(jobDescriptionService.findLatestMatch(12L, null, OWNER)).thenReturn(Optional.empty());
+        when(jobDescriptionService.findAllMatchesForUser(OWNER)).thenReturn(List.of(
+                ResumeMatchResponseDto.builder().jobDescriptionId(11L).resumeId(5L).missingSkills(List.of("aws", "Docker")).build(),
+                ResumeMatchResponseDto.builder().jobDescriptionId(10L).resumeId(5L).missingSkills(List.of("AWS")).build(),
+                ResumeMatchResponseDto.builder().jobDescriptionId(10L).resumeId(5L).missingSkills(List.of("Old gap")).build()));
         when(resumeService.findParsedByIdForUser(5L, OWNER)).thenReturn(ApplicationTestData.parsedResume());
-        when(interviewService.findAllForJob(10L, OWNER)).thenReturn(List.of());
-        when(interviewService.findAllForJob(11L, OWNER)).thenReturn(List.of());
-        when(interviewService.findAllForJob(12L, OWNER)).thenReturn(List.of());
+        when(interviewService.findAllWithQuestionsForUser(OWNER)).thenReturn(List.of());
 
         SkillGapDto gaps = service.overall(OWNER);
 

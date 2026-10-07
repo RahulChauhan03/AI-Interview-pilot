@@ -1,6 +1,10 @@
+import { MatDialog } from '@angular/material/dialog';
+import { switchMap } from 'rxjs';
+import { NotificationService } from '../../../core/services/notification.service';
+import { confirmAction } from '../../../shared/confirm-dialog.component';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ResumeMatch } from '../../job-description/models/job-description.model';
@@ -12,6 +16,9 @@ import { MatchService, matchLabel } from '../services/match.service';
   styleUrl: './match-detail.component.scss',
 })
 export class MatchDetailComponent implements OnInit {
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+  private readonly notifications = inject(NotificationService);
   private readonly matchService = inject(MatchService);
   private readonly id = Number(inject(ActivatedRoute).snapshot.paramMap.get('id'));
 
@@ -31,5 +38,14 @@ export class MatchDetailComponent implements OnInit {
       next: (match) => { this.match.set(match); this.loading.set(false); },
       error: () => { this.failed.set(true); this.loading.set(false); },
     });
+  }
+
+  remove(): void {
+    const match = this.match();
+    if (!match) return;
+    confirmAction(this.dialog, { title: 'Delete this match?', confirmLabel: 'Delete',
+      message: `The analysis of ${match.resumeFileName} for "${match.jobTitle}" will be removed.` })
+      .pipe(switchMap(() => this.matchService.delete(match.id)))
+      .subscribe({ next: () => { this.notifications.success('Match deleted.'); this.router.navigateByUrl('/app/matches'); } });
   }
 }
