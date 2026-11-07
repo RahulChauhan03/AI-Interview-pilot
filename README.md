@@ -69,54 +69,6 @@ The project is built with Java Spring Boot, Angular, MySQL, MongoDB, and Ollama.
   <img src="docs/screenshots/16-application-details.png" width="65%">
 </p>
 
-### 1. Dashboard
-![Dashboard](docs/screenshots/01-dashboard.png)
-
-### 2. Resume Management
-![Resume Management](docs/screenshots/02-resumes.png)
-
-### 3. Resume ATS Analysis
-![Resume Analysis](docs/screenshots/03-resume-analysis.png)
-
-### 4. Job Descriptions
-![Job Descriptions](docs/screenshots/04-job-descriptions.png)
-
-### 5. Applications
-![Applications](docs/screenshots/05-applications.png)
-
-### 6. Job Matches
-![Job Matches](docs/screenshots/06-job-matches.png)
-
-### 7. Interviews
-![Interviews](docs/screenshots/07-interviews.png)
-
-### 8. Mock Interview
-![Mock Interview](docs/screenshots/08-mock-interview.png)
-
-### 9. Skill Gap Analysis
-![Skill Gap Analysis](docs/screenshots/09-skill-gap-analysis.png)
-
-### 10. User Profile
-![User Profile](docs/screenshots/10-profile.png)
-
-### 11. Settings
-![Settings](docs/screenshots/11-settings.png)
-
-### 12. Application Overview
-![Application Overview](docs/screenshots/12-application-overview.png)
-
-### 13. Resume Match Details
-![Resume Match Details](docs/screenshots/13-application-match.png)
-
-### 14. Tailored Resume
-![Tailored Resume](docs/screenshots/14-tailored-resume.png)
-
-### 15. Interview Preparation
-![Interview Preparation](docs/screenshots/15-interview-preparation.png)
-
-### 16. Application Details
-![Application Details](docs/screenshots/16-application-details.png)
-
 ## 🚀 Features
 
 ### 🔐 Authentication & Security
