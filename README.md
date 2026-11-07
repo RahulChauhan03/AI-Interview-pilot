@@ -8,6 +8,67 @@ The project is built with Java Spring Boot, Angular, MySQL, MongoDB, and Ollama.
 
 ## 📸 Application Screenshots
 
+## 📸 Application Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>Dashboard</b></td>
+    <td align="center"><b>Resume Management</b></td>
+    <td align="center"><b>Resume Analysis</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/01-dashboard.png" width="100%"></td>
+    <td><img src="docs/screenshots/02-resumes.png" width="100%"></td>
+    <td><img src="docs/screenshots/03-resume-analysis.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Job Descriptions</b></td>
+    <td align="center"><b>Applications</b></td>
+    <td align="center"><b>Job Matches</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/04-job-descriptions.png" width="100%"></td>
+    <td><img src="docs/screenshots/05-applications.png" width="100%"></td>
+    <td><img src="docs/screenshots/06-job-matches.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Interviews</b></td>
+    <td align="center"><b>Mock Interview</b></td>
+    <td align="center"><b>Skill Gap Analysis</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/07-interviews.png" width="100%"></td>
+    <td><img src="docs/screenshots/08-mock-interview.png" width="100%"></td>
+    <td><img src="docs/screenshots/09-skill-gap-analysis.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>User Profile</b></td>
+    <td align="center"><b>Settings</b></td>
+    <td align="center"><b>Application Overview</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/10-profile.png" width="100%"></td>
+    <td><img src="docs/screenshots/11-settings.png" width="100%"></td>
+    <td><img src="docs/screenshots/12-application-overview.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Resume Match</b></td>
+    <td align="center"><b>Tailored Resume</b></td>
+    <td align="center"><b>Interview Preparation</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/13-application-match.png" width="100%"></td>
+    <td><img src="docs/screenshots/14-tailored-resume.png" width="100%"></td>
+    <td><img src="docs/screenshots/15-interview-preparation.png" width="100%"></td>
+  </tr>
+</table>
+
+### Application Tracking
+
+<p align="center">
+  <img src="docs/screenshots/16-application-details.png" width="65%">
+</p>
+
 ### 1. Dashboard
 ![Dashboard](docs/screenshots/01-dashboard.png)
 
