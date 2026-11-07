@@ -8,8 +8,6 @@ The project is built with Java Spring Boot, Angular, MySQL, MongoDB, and Ollama.
 
 ## 📸 Application Screenshots
 
-## 📸 Application Screenshots
-
 <table>
   <tr>
     <td align="center"><b>Dashboard</b></td>
